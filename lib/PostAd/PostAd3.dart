@@ -1,16 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/http.dart';
 import 'package:meplo/UI/Menifo.dart';
+import 'package:meplo/UI/MyWidgets.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:file_picker/file_picker.dart';
 
 class PostAd3 extends StatefulWidget {
   String adCategoriId;
@@ -29,9 +24,9 @@ class PostAd3 extends StatefulWidget {
 class _PostAd3State extends State<PostAd3> {
   Menifo menifo = Menifo();
 
+  bool _isPosting = false;
   List<Asset> images = List<Asset>();
-  File file;
-  File _image;
+  List<File> _imageFile = [];
   String _error = 'No Error Dectected';
 
   @override
@@ -39,24 +34,12 @@ class _PostAd3State extends State<PostAd3> {
     super.initState();
   }
 
-  void _chooseImage() async {
-    FilePickerResult result = await FilePicker.platform.pickFiles();
-
-    if(result != null) {
-      file = File(result.files.single.path);
-    } else {
-      // User canceled the picker
-    }
-    /*var pickedImage = await ImagePicker.pickImage(source: ImageSource.gallery);
-    setState(() {
-      _image = File(pickedImage.path);
-      // print(_image.path);
-    });*/
-  }
-
   Widget buildGridView() {
     return GridView.count(
       crossAxisCount: 3,
+      padding: EdgeInsets.all(5),
+      crossAxisSpacing: 5,
+      mainAxisSpacing: 5,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
         return AssetThumb(
@@ -99,10 +82,22 @@ class _PostAd3State extends State<PostAd3> {
     // setState to update our non-existent appearance.
     if (!mounted) return;
 
-    setState(() async {
+    setState(() {
       images = resultList;
       _error = error;
     });
+
+    images.forEach((imageAsset) async {
+      final filePath =
+          await FlutterAbsolutePath.getAbsolutePath(imageAsset.identifier);
+
+      File tempFile = File(filePath);
+      if (tempFile.existsSync()) {
+        _imageFile.add(tempFile);
+      }
+    });
+
+    print("Image File Length: " + _imageFile.length.toString());
 
     /*for (int i = 0; i < images.length; i++) {
       var path =
@@ -113,42 +108,52 @@ class _PostAd3State extends State<PostAd3> {
   }
 
   Future uploadImages() async {
-    // final uri = Uri.parse(menifo.getBseUrl() + "CreatePost");
-    final uri = Uri.parse("http://192.168.5.107/InstaGreet/api/PostCreate");
+    setState(() {
+      _isPosting = true;
+    });
+    final uri = Uri.parse(menifo.getBseUrl() + "CreatePost");
 
     var request = http.MultipartRequest('POST', uri);
 
-    /*request.fields['category_id'] = widget.adCategoriId;
+    request.fields['user_id'] = MyWidgets.userId;
+    request.fields['category_id'] = widget.adCategoriId;
     request.fields['brand'] = widget.adBrand;
     request.fields['title'] = widget.adTitle;
     request.fields['description'] = widget.adDescription;
-    request.fields['price'] = widget.adPrice;*/
-    request.fields['user_id'] = "2";
-    request.fields['post_type'] = "1";
-    request.fields['post_image_cap'] = "Test Image";
+    request.fields['price'] = widget.adPrice;
 
-    request.files.add(await http.MultipartFile.fromPath("post_video", file.path));
-    print(request);
+    for (int i = 0; i < _imageFile.length; i++) {
+      request.files.add(
+          await http.MultipartFile.fromPath("image${i+1}", _imageFile[i].path));
+      print("image${i+1}");
+      print(_imageFile[i].path);
+    }
+
     var response = await request.send();
-    print(response);
+
+    print(response.reasonPhrase);
     if (response.statusCode == 200) {
+      setState(() {
+        _isPosting = false;
+      });
       print('Image Uploaded!');
       Fluttertoast.showToast(
-        msg: "Image Uploaded!",
-        fontSize: 16.0,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        backgroundColor: Colors.grey[600]
-      );
+          msg: "Image Uploaded!",
+          fontSize: 16.0,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.grey[600]);
     } else {
+      setState(() {
+        _isPosting = false;
+      });
       print('Image Not Uploaded!');
       Fluttertoast.showToast(
-        msg: "Image Not Uploaded!",
-        fontSize: 16.0,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.grey[600]
-      );
+          msg: "Image Not Uploaded!",
+          fontSize: 16.0,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.grey[600]);
     }
   }
 
@@ -156,37 +161,52 @@ class _PostAd3State extends State<PostAd3> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text("Select product images"), centerTitle: true),
-      body: Column(
-        children: <Widget>[
-          // Center(child: Text('Error: $_error')),
-          RaisedButton(
-            child: Text("Pick images"),
-            onPressed: _chooseImage,
-          ),
-          Expanded(
-            child: /*buildGridView()*/ _image != null
-                ? Image.file(_image)
-                : Center(child: Text("No Image Selected")),
-          )
+      body: Stack(
+        children: [
+          _isPosting
+              ? AlertDialog(
+                  actions: [],
+                  title: Row(
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(width: 25),
+                      Text("Posting Ad...")
+                    ],
+                  ),
+                )
+              : Column(
+                  children: <Widget>[
+                    // Center(child: Text('Error: $_error')),
+                    RaisedButton(
+                      child: Text("Pick images"),
+                      onPressed: loadAssets,
+                    ),
+                    Expanded(
+                      child: _imageFile.length > 0
+                          ? buildGridView()
+                          : Center(child: Text("No Image Selected")),
+                    )
+                  ],
+                ),
         ],
       ),
-      bottomNavigationBar: BottomAppBar(
+      bottomNavigationBar: !_isPosting ? BottomAppBar(
         child: Container(
           margin: EdgeInsets.all(8),
           height: 50,
           child: RaisedButton(
             onPressed: () {
-              if (_image.length() != 0) {
+              if (_imageFile.length != 0) {
                 uploadImages();
+                print(_imageFile.length.toString());
               } else {
                 print("No Images Selected");
                 Fluttertoast.showToast(
-                  msg: "No Images Selected",
-                  fontSize: 16.0,
-                  toastLength: Toast.LENGTH_SHORT,
-                  gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.grey[600]
-                );
+                    msg: "No Images Selected",
+                    fontSize: 16.0,
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    backgroundColor: Colors.grey[600]);
               }
               /*for (int i = 0; i < images.length; i++) {
                 */ /* var path = await FlutterAbsolutePath.getAbsolutePath(
@@ -211,7 +231,7 @@ class _PostAd3State extends State<PostAd3> {
             textColor: Colors.white,
           ),
         ),
-      ),
+      ) : null,
     );
   }
 }

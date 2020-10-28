@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:meplo/UI/DatabaseHelper.dart';
 import 'package:meplo/UI/Menifo.dart';
+import 'package:meplo/UI/MyWidgets.dart';
 
 import 'SignUp.dart';
 
@@ -18,15 +19,32 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _userEmail = TextEditingController();
   TextEditingController _userPass = TextEditingController();
   String url;
+  bool _isLoading = false;
   Menifo menifo = Menifo();
 
+  void setToMyWidgets(String _userId, String _userName, String _userEmail,
+      String _userMobile, String _userPassword) {
+    setState(() {
+      MyWidgets.userId = _userId;
+      MyWidgets.userName = _userName;
+      MyWidgets.userEmail = _userEmail;
+      MyWidgets.userMobile = _userMobile;
+      MyWidgets.userPassword = _userPassword;
+    });
+  }
+
   Future<void> logInUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     url = menifo.getBseUrl() +
-        "LoginUser?user_email=${_userEmail.text}&user_password=${_userPass.text}";
+        "LoginUser?user_email=${_userEmail.text}&user_password=${_userPass
+            .text}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
@@ -35,9 +53,9 @@ class _LogInState extends State<LogIn> {
 
     if (jsonDecode(response.body).toString() == "Invalid Credintials!") {
       setState(() {
-
+        _isLoading = false;
       });
-      return Fluttertoast.showToast(
+      Fluttertoast.showToast(
           msg: "Invalid Credintials!",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.CENTER,
@@ -45,26 +63,37 @@ class _LogInState extends State<LogIn> {
           textColor: Colors.white,
           fontSize: 16.0);
     } else {
-      DatabaseHelper db = DatabaseHelper.instance;
-      db
-          .insertUser(
-              jsonDecode(response.body)[0]['user_id'].toString(),
-              jsonDecode(response.body)[0]['user_name'].toString(),
-              jsonDecode(response.body)[0]['user_email'].toString(),
-              jsonDecode(response.body)[0]['user_mobile'].toString(),
-              jsonDecode(response.body)[0]['user_password'].toString())
-          .then((value) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => Home()));
+      setToMyWidgets(
+          jsonDecode(response.body)[0]['user_id'].toString(),
+          jsonDecode(response.body)[0]['user_name'].toString(),
+          jsonDecode(response.body)[0]['user_email'].toString(),
+          jsonDecode(response.body)[0]['user_mobile'].toString(),
+          jsonDecode(response.body)[0]['user_password'].toString());
+    DatabaseHelper db = DatabaseHelper.instance;
+    db
+        .insertUser(
+    jsonDecode(response.body)[0]['user_id'].toString(),
+    jsonDecode(response.body)[0]['user_name'].toString(),
+    jsonDecode(response.body)[0]['user_email'].toString(),
+    jsonDecode(response.body)[0]['user_mobile'].toString(),
+    jsonDecode(response.body)[0]['user_password'].toString())
+        .then((value) {
+    Navigator.pushReplacement(
+    context, MaterialPageRoute(builder: (context) => Home()));
+    });
+      setState(() {
+        _isLoading = false;
       });
-      return Fluttertoast.showToast(
-          msg: "LogIn Successfully!",
-          backgroundColor: Colors.grey[600],
-          gravity: ToastGravity.BOTTOM,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_SHORT,
-          fontSize: 16.0);
-    }
+    Fluttertoast.showToast(
+    msg: "LogIn Successfully!",
+    backgroundColor: Colors.grey[600],
+    gravity: ToastGravity.BOTTOM,
+    textColor: Colors.white,
+    toastLength: Toast.LENGTH_SHORT,
+    fontSize:
+    16.0
+    );
+  }
   }
 
   @override
@@ -75,7 +104,7 @@ class _LogInState extends State<LogIn> {
         child: Card(
           margin: const EdgeInsets.only(left: 15, right: 15),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
           child: Container(
             padding: EdgeInsets.only(left: 25, top: 20, right: 25, bottom: 25),
             child: Form(
@@ -104,7 +133,7 @@ class _LogInState extends State<LogIn> {
                       decoration: InputDecoration(
                           hintText: "example@gmail.com",
                           hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 14)),
+                          TextStyle(color: Colors.grey, fontSize: 14)),
                       validator: (value) {
                         if (value.isEmpty) {
                           return "Enter Email Address";
@@ -128,7 +157,7 @@ class _LogInState extends State<LogIn> {
                       decoration: InputDecoration(
                           hintText: "**********",
                           hintStyle:
-                              TextStyle(color: Colors.grey, fontSize: 14)),
+                          TextStyle(color: Colors.grey, fontSize: 14)),
                       validator: (value) {
                         if (value.isEmpty) {
                           return "Enter Password";

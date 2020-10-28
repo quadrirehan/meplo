@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: /*MyHomePage()*/ Home(),
+      home: MyHomePage() /*Home()*/,
     );
   }
 }
@@ -37,6 +37,9 @@ class _MyHomePageState extends State<MyHomePage> {
     Future.delayed(Duration(seconds: 3),() async {
       userCount = await db.getCount();
       if(userCount > 0){
+        db.getUser().then((data) {
+          print(data[0]['user_id']);
+        });
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
       }else{
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LogIn()));

@@ -4,6 +4,13 @@ class MyWidgets{
 
   DateTime currentBackPressTime;
 
+  static String userId;
+  static String userName;
+  static String userEmail;
+  static String userMobile;
+  static String userPassword;
+
+
   Future<bool> onWillPop() async{
     DateTime now = DateTime.now();
     if (currentBackPressTime == null ||
