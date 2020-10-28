@@ -51,14 +51,14 @@ class _LogInState extends State<LogIn> {
 
     // print(jsonDecode(response.body).toString());
 
-    if (jsonDecode(response.body).toString() == "Invalid Credintials!") {
+    if (response.body.toString() == "Invalid Credintials!") {
       setState(() {
         _isLoading = false;
       });
       Fluttertoast.showToast(
           msg: "Invalid Credintials!",
           toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.CENTER,
+          gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.grey[600],
           textColor: Colors.white,
           fontSize: 16.0);
@@ -81,9 +81,6 @@ class _LogInState extends State<LogIn> {
     Navigator.pushReplacement(
     context, MaterialPageRoute(builder: (context) => Home()));
     });
-      setState(() {
-        _isLoading = false;
-      });
     Fluttertoast.showToast(
     msg: "LogIn Successfully!",
     backgroundColor: Colors.grey[600],
@@ -169,13 +166,13 @@ class _LogInState extends State<LogIn> {
                     SizedBox(height: 40),
                     Container(
                       height: 50,
-                      child: RaisedButton(
-                        onPressed: () {
+                      child: FlatButton(
+                        onPressed: _isLoading ? null : () {
                           if (_formKey.currentState.validate()) {
                             logInUser();
                           }
                         },
-                        child: Text("LOGIN", style: TextStyle()),
+                        child: _isLoading ? CircularProgressIndicator() : Text("LOGIN", style: TextStyle()),
                         textColor: Colors.white,
                         color: Colors.blue,
                         shape: RoundedRectangleBorder(

@@ -14,12 +14,14 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _userName = TextEditingController();
   TextEditingController _userMob = TextEditingController();
   TextEditingController _userEmail = TextEditingController();
   TextEditingController _userPass = TextEditingController();
 
+  bool _isLoading = false;
   String url;
   Menifo menifo;
 
@@ -30,20 +32,38 @@ class _SignUpState extends State<SignUp> {
   }
 
   Future<void> registerUser() async {
+    setState(() {
+      _isLoading = true;
+    });
     url = menifo.getBseUrl() +
         "RegisterUser?user_name=${_userName.text}&user_email=${_userEmail.text}&user_mobile=${_userMob.text}&user_password=${_userPass.text}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
-    print(jsonDecode(response.body).toString());
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LogIn()));
-    return Fluttertoast.showToast(
+    if(response.body.toString() == "User Registered Successfully!"){
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LogIn()));
+      return Fluttertoast.showToast(
           msg: "User Registered Successfully!",
           fontSize: 16.0,
           backgroundColor: Colors.grey[600],
           gravity: ToastGravity.BOTTOM,
           textColor: Colors.white,
           toastLength: Toast.LENGTH_SHORT);
+    }else{
+      setState(() {
+        _isLoading = false;
+      });
+      return Fluttertoast.showToast(
+          msg: "error while registering, please try again later!",
+          fontSize: 16.0,
+          backgroundColor: Colors.grey[600],
+          gravity: ToastGravity.BOTTOM,
+          textColor: Colors.white,
+          toastLength: Toast.LENGTH_SHORT);
+    }
   }
 
   @override
@@ -166,15 +186,15 @@ class _SignUpState extends State<SignUp> {
                     SizedBox(height: 20),
                     Container(
                       height: 50,
-                      child: RaisedButton(
-                        onPressed: () {
+                      child: FlatButton(
+                        onPressed: _isLoading ? null : () {
                           if (_formKey.currentState.validate()) {
                             registerUser();
                             /*Scaffold.of(context).showSnackBar(
                             SnackBar(content: Text('Processing Data')));*/
                           }
                         },
-                        child: Text("SIGNUP", style: TextStyle()),
+                        child: _isLoading ? CircularProgressIndicator() : Text("SIGNUP", style: TextStyle()),
                         textColor: Colors.white,
                         color: Colors.blue,
                         shape: RoundedRectangleBorder(

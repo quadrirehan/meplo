@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meplo/Location.dart';
 import 'package:meplo/MyAds.dart';
 import 'package:meplo/PostAd/PostAd1.dart';
+import 'package:meplo/UI/DatabaseHelper.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:meplo/User/UserProfile.dart';
 import 'ProductDetails.dart';
@@ -75,7 +76,15 @@ class _HomeState extends State<Home> {
                         Icon(
                           Icons.keyboard_arrow_down,
                           color: Color.fromRGBO(0, 65, 0, 1),
-                        )
+                        ),
+                        SizedBox(width: 10),
+                        InkWell(onTap: () async {
+                          DatabaseHelper db = DatabaseHelper.instance;
+                          await db.deleteUser().whenComplete(() {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LogIn()));
+                          });
+                        },
+                            child: Icon(Icons.delete_forever))
                       ],
                     )
                   ],
