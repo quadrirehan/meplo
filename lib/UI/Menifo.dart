@@ -4,4 +4,8 @@ class Menifo{
   String getBseUrl(){
     return baseUrl + "Meplo/api/";
   }
+
+  String getImageUrl(){
+    return baseUrl+"Meplo/public/Images/";
+  }
 }

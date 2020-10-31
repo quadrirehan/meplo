@@ -6,6 +6,7 @@ import 'package:meplo/PostAd/PostAd1.dart';
 import 'package:meplo/UI/DatabaseHelper.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:meplo/User/UserProfile.dart';
+import 'package:meplo/User/UserSettings.dart';
 import 'ProductDetails.dart';
 import 'User/LogIn.dart';
 
@@ -51,8 +52,73 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+          child: ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          DrawerHeader(
+            // decoration: BoxDecoration(color: Colors.black),
+            child: Container(
+              child: Column(
+                children: [
+                  Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.yellow[700],
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 90,
+                      )),
+                  SizedBox(height: 10),
+                  Text(MyWidgets.userName, style: TextStyle(fontSize: 20))
+                ],
+              ),
+            ),
+          ),
+          ListTile(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile()));
+            },
+            title: Text("Profile"),
+          ),
+          ListTile(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds()));
+            },
+            title: Text("My Ads"),
+          ),
+          ListTile(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds()));
+            },
+            title: Text("Favourites"),
+          ),
+          ListTile(
+            onTap: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => UserSettings()));
+            },
+            title: Text("Settings"),
+          ),
+          ListTile(
+            onTap: () async {
+              DatabaseHelper db = DatabaseHelper.instance;
+              await db.deleteUser().whenComplete(() {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LogIn()));
+              });
+            },
+            title: Text("Log Out"),
+          ),
+          ListTile(
+            title: Text("Contact"),
+          ),
+        ],
+      )),
       body: WillPopScope(
-        onWillPop: _myWidgets.onWillPop,
+        onWillPop: MyWidgets.onWillPop,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListView(
@@ -67,26 +133,14 @@ class _HomeState extends State<Home> {
                   children: [
                     Icon(Icons.location_on, color: Color.fromRGBO(0, 65, 0, 1)),
                     SizedBox(width: 5),
-                    Row(
-                      children: [
-                        Text(
-                          "Collector Office Campus, Aurangabad ",
-                          style: TextStyle(color: Color.fromRGBO(0, 65, 0, 1)),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Color.fromRGBO(0, 65, 0, 1),
-                        ),
-                        SizedBox(width: 10),
-                        InkWell(onTap: () async {
-                          DatabaseHelper db = DatabaseHelper.instance;
-                          await db.deleteUser().whenComplete(() {
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LogIn()));
-                          });
-                        },
-                            child: Icon(Icons.delete_forever))
-                      ],
-                    )
+                    Text(
+                      "Collector Office Campus, Aurangabad ",
+                      style: TextStyle(color: Color.fromRGBO(0, 65, 0, 1)),
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Color.fromRGBO(0, 65, 0, 1),
+                    ),
                   ],
                 ),
               ),
@@ -192,10 +246,10 @@ class _HomeState extends State<Home> {
                           InkWell(
                             onTap: () {
                               print(index.toString());
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ProductDetails()));
+                              // Navigator.push(
+                              //     context,
+                              //     MaterialPageRoute(
+                              //         builder: (context) => ProductDetails()));
                             },
                             child: Container(
                               padding: EdgeInsets.all(10),
@@ -250,7 +304,8 @@ class _HomeState extends State<Home> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd1()));
+          Navigator.push(
+              context, MaterialPageRoute(builder: (context) => PostAd1()));
         },
         child: Icon(
           Icons.add_circle_outline,

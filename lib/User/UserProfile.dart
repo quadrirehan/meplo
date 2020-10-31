@@ -21,7 +21,7 @@ class _UserProfileState extends State<UserProfile> {
       // backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0,),
       body: WillPopScope(
-        onWillPop: _myWidgets.onWillPop,
+        onWillPop: MyWidgets.onWillPop,
         child: ListView(
           physics: NeverScrollableScrollPhysics(),
           padding: EdgeInsets.only(left: 10, right: 10),
