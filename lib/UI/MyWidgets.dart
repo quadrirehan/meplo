@@ -9,6 +9,11 @@ class MyWidgets {
   static String userMobile;
   static String userPassword;
 
+  static String baseUrl = "http://192.168.5.110/";
+  static String api = baseUrl+"Meplo/api/";
+  static String categoriesUrl = baseUrl+"Meplo/public/Categories/";
+  static String postImageUrl = baseUrl+"Meplo/public/Images/";
+
   static Future<bool> onWillPop() async {
     DateTime now = DateTime.now();
     if (currentBackPressTime == null ||

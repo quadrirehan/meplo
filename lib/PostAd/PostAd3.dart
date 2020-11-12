@@ -3,7 +3,6 @@ import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:meplo/UI/Menifo.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
@@ -22,7 +21,6 @@ class PostAd3 extends StatefulWidget {
 }
 
 class _PostAd3State extends State<PostAd3> {
-  Menifo menifo = Menifo();
 
   bool _isPosting = false;
   List<Asset> images = List<Asset>();
@@ -111,7 +109,7 @@ class _PostAd3State extends State<PostAd3> {
     setState(() {
       _isPosting = true;
     });
-    final uri = Uri.parse(menifo.getBseUrl() + "CreatePost");
+    final uri = Uri.parse(MyWidgets.api + "CreatePost");
 
     var request = http.MultipartRequest('POST', uri);
 

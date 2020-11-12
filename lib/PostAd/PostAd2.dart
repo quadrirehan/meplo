@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meplo/PostAd/PostAd3.dart';
-import 'package:meplo/UI/Menifo.dart';
 import 'package:http/http.dart' as http;
+import 'package:meplo/UI/MyWidgets.dart';
 
 class PostAd2 extends StatefulWidget {
   int categoryId;
@@ -15,7 +15,6 @@ class PostAd2 extends StatefulWidget {
 
 class _PostAd2State extends State<PostAd2> {
 
-  Menifo menifo = Menifo();
   String url;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -25,7 +24,7 @@ class _PostAd2State extends State<PostAd2> {
   TextEditingController _adPrice = TextEditingController();
 
   Future<void> _createPost() async{
-    url = menifo.getBseUrl() + "CreatePost?category_id=${widget.categoryId.toString()}&brand=${_adBrand.text}&title=${_adTitle.text}&description=${_adDescription.text}&price=${_adPrice.text}";
+    url = MyWidgets.api + "CreatePost?category_id=${widget.categoryId.toString()}&brand=${_adBrand.text}&title=${_adTitle.text}&description=${_adDescription.text}&price=${_adPrice.text}";
     print(url);
     var response = await http.get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
     var data = jsonDecode(response.body);

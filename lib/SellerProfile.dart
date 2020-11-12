@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 class SellerProfile extends StatefulWidget {
+  final String _sellerName;
+
+  SellerProfile(this._sellerName);
   @override
   _SellerProfileState createState() => _SellerProfileState();
 }
@@ -86,7 +89,7 @@ class _SellerProfileState extends State<SellerProfile> {
                   ],
                 ),
                 SizedBox(height: 5),
-                Text("Seller Name", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
+                Text(widget._sellerName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),),
                 SizedBox(height: 5),
                 Text("MEMBER SINCE FEB 15", style: TextStyle(fontSize: 10),),
               ],

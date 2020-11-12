@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 import 'package:meplo/Location.dart';
 import 'package:meplo/MyAds.dart';
 import 'package:meplo/PostAd/PostAd1.dart';
@@ -16,12 +20,9 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+
   TextEditingController _controller = TextEditingController();
   int _bottomIndex = 0;
-  MyWidgets _myWidgets = MyWidgets();
-
-  bool _isSelected = false;
-  int _index;
 
   List<Color> categoriesColour = [
     Colors.deepPurpleAccent[400],
@@ -40,6 +41,7 @@ class _HomeState extends State<Home> {
     "assets/categories/Meplo-G05.png",
     "assets/categories/Meplo-G06.png",
   ];
+
   List<String> categories = [
     "Plants",
     "Machines",
@@ -48,6 +50,49 @@ class _HomeState extends State<Home> {
     "Engines",
     "New Dealers"
   ];
+
+  Future<List> getAllPosts() async {
+    String url = MyWidgets.api + "GetAllPost?user_id=${MyWidgets.userId}";
+    print(url);
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    return jsonDecode(response.body);
+  }
+
+  Future<List> getFavPosts() async {
+    String url =
+        MyWidgets.api + "GetfavPosts?user_id=${int.parse(MyWidgets.userId)}";
+    print(url);
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    // favoutitePostIds = response.body[''];
+    var data = jsonDecode(response.body);
+    // return jsonDecode(response.body);
+    print("Favourite Posts:");
+    print(jsonDecode(response.body)[0]['posts_id']);
+  }
+
+  Future<void> updateFavourite(int _postId, int _imageId) async {
+    String url = MyWidgets.api +
+        "FavouritePost?user_id=${int.parse(MyWidgets.userId.toString())}&posts_id=$_postId&posts_img_id=$_imageId";
+    print(url);
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    print(response.body.toString());
+    Fluttertoast.showToast(
+        msg: response.body.toString(),
+        backgroundColor: Colors.grey[600],
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        fontSize: 16.0);
+  }
+
+/*  @override
+  void initState() {
+    super.initState();
+    getFavPosts();
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -77,26 +122,30 @@ class _HomeState extends State<Home> {
             ),
           ),
           ListTile(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfile()));
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserProfile()));
             },
             title: Text("Profile"),
           ),
           ListTile(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds()));
+            onTap: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => MyAds(0)));
             },
             title: Text("My Ads"),
           ),
           ListTile(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds()));
+            onTap: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => MyAds(1)));
             },
             title: Text("Favourites"),
           ),
           ListTile(
-            onTap: (){
-              Navigator.push(context, MaterialPageRoute(builder: (context) => UserSettings()));
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserSettings()));
             },
             title: Text("Settings"),
           ),
@@ -105,9 +154,7 @@ class _HomeState extends State<Home> {
               DatabaseHelper db = DatabaseHelper.instance;
               await db.deleteUser().whenComplete(() {
                 Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => LogIn()));
+                    context, MaterialPageRoute(builder: (context) => LogIn()));
               });
             },
             title: Text("Log Out"),
@@ -121,184 +168,266 @@ class _HomeState extends State<Home> {
         onWillPop: MyWidgets.onWillPop,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ListView(
-            shrinkWrap: true,
-            children: [
-              InkWell(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Location()));
-                },
-                child: Row(
+          child: RefreshIndicator(
+            onRefresh: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
+              return Future.value(false);
+            },
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Location()));
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_on,
+                          color: Color.fromRGBO(0, 65, 0, 1)),
+                      SizedBox(width: 5),
+                      Text(
+                        "Collector Office Campus, Aurangabad ",
+                        style: TextStyle(color: Color.fromRGBO(0, 65, 0, 1)),
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Color.fromRGBO(0, 65, 0, 1),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 5),
+                Row(
                   children: [
-                    Icon(Icons.location_on, color: Color.fromRGBO(0, 65, 0, 1)),
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.search, color: Colors.black),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide()),
+                            hintText: "Machines, Engine, Plant, Parts...."),
+                      ),
+                    ),
                     SizedBox(width: 5),
-                    Text(
-                      "Collector Office Campus, Aurangabad ",
-                      style: TextStyle(color: Color.fromRGBO(0, 65, 0, 1)),
-                    ),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Color.fromRGBO(0, 65, 0, 1),
-                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => LogIn()));
+                      },
+                      child: Icon(
+                        Icons.notifications_none,
+                        color: Colors.black,
+                      ),
+                    )
                   ],
                 ),
-              ),
-              SizedBox(height: 5),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search, color: Colors.black),
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: BorderSide()),
-                          hintText: "Machines, Engine, Plant, Parts...."),
-                    ),
-                  ),
-                  SizedBox(width: 5),
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => LogIn()));
-                    },
-                    child: Icon(
-                      Icons.notifications_none,
-                      color: Colors.black,
-                    ),
-                  )
-                ],
-              ),
-              Divider(color: Colors.black),
-              SizedBox(height: 10),
-              Text("Browse Categories", textAlign: TextAlign.left),
-              SizedBox(height: 10),
-              GridView.builder(
-                  padding: EdgeInsets.only(left: 25, right: 25),
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      childAspectRatio: 0.8,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 25,
-                      crossAxisCount: 3),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    return GridTile(
-                        child: Column(
-                      children: [
-                        Container(
-                          height: 80,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: categoriesColour[index],
-                            // image: DecorationImage(
-                            //     image: AssetImage(
-                            //         "assets/categories/plants.png"))
-                          ),
-                          child: Center(
-                              child: Image.asset(
-                            categoriesImages[index],
-                            height: 75,
-                            color: Colors.white,
-                          )),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          categories[index],
-                          style: TextStyle(fontSize: 10),
-                          textAlign: TextAlign.center,
-                          softWrap: false,
-                          overflow: TextOverflow.visible,
-                        ),
-                      ],
-                    ));
-                  }),
-              SizedBox(height: 10),
-              Container(
-                height: 80,
-                color: Colors.blue[900],
-              ),
-              SizedBox(height: 10),
-              Text(
-                "Fresh Recommendations",
-                textAlign: TextAlign.left,
-              ),
-              SizedBox(height: 10),
-              GridView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    // /*crossAxisSpacing: 10*/ childAspectRatio: 0.9
-                  ),
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                          side:
-                              BorderSide(color: Colors.grey[300], width: 1.5)),
-                      child: Stack(
+                Divider(color: Colors.black),
+                SizedBox(height: 10),
+                Text("Browse Categories", textAlign: TextAlign.left),
+                SizedBox(height: 10),
+                GridView.builder(
+                    padding: EdgeInsets.only(left: 25, right: 25),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        childAspectRatio: 0.8,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 25,
+                        crossAxisCount: 3),
+                    itemCount: categories.length,
+                    itemBuilder: (context, index) {
+                      return GridTile(
+                          child: Column(
                         children: [
-                          InkWell(
-                            onTap: () {
-                              print(index.toString());
-                              // Navigator.push(
-                              //     context,
-                              //     MaterialPageRoute(
-                              //         builder: (context) => ProductDetails()));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Image.asset("assets/machine.jpg",
-                                      fit: BoxFit.fill),
-                                  SizedBox(height: 10),
-                                  Text(
-                                    "₹ 7,50,000",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                  SizedBox(height: 5),
-                                  Text("Birla Generator"),
-                                ],
-                              ),
+                          Container(
+                            height: 80,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: categoriesColour[index],
+                              // image: DecorationImage(
+                              //     image: AssetImage(
+                              //         "assets/categories/plants.png"))
                             ),
+                            child: Center(
+                                child: Image.asset(
+                              categoriesImages[index],
+                              height: 75,
+                              color: Colors.white,
+                            )),
                           ),
-                          Align(
-                            alignment: Alignment.topRight,
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                height: 30,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white),
-                                padding: EdgeInsets.all(5),
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      _index = index;
-                                      _isSelected = !_isSelected;
-                                    });
-                                  },
-                                  child: Icon(index == _index && _isSelected
-                                      ? Icons.favorite
-                                      : Icons.favorite_border),
-                                ),
-                              ),
-                            ),
+                          SizedBox(height: 5),
+                          Text(
+                            categories[index],
+                            style: TextStyle(fontSize: 10),
+                            textAlign: TextAlign.center,
+                            softWrap: false,
+                            overflow: TextOverflow.visible,
                           ),
                         ],
-                      ),
-                    );
-                  }),
-            ],
+                      ));
+                    }),
+                SizedBox(height: 10),
+                Container(
+                  height: 80,
+                  color: Colors.blue[900],
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "Fresh Recommendations",
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 10),
+                FutureBuilder(
+                  future: getAllPosts(),
+                  builder: (context, snap) {
+                    if (snap.hasData) {
+                      if (snap.data.toString() == "[]") {
+                        return Center(child: Text("No Ads Found"));
+                      } else {
+                        return GridView.builder(
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    // /*crossAxisSpacing: 10*/
+                                    childAspectRatio: 0.7),
+                            itemCount:
+                                snap.data.length != 0 ? snap.data.length : 0,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ProductDetails(
+                                              snap.data[index]['user_name']
+                                                  .toString(),
+                                              snap.data[index]['posts_id']
+                                                  .toString(),
+                                              snap.data[index]['posts_title']
+                                                  .toString(),
+                                              snap.data[index]
+                                                      ['posts_description']
+                                                  .toString(),
+                                              snap.data[index]['posts_price']
+                                                  .toString(),
+                                              snap.data[index]['posts_date']
+                                                  .toString(),
+                                              snap.data[index]['favourites']
+                                                  .toString(),
+                                              snap.data[index]['posts_img_id']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_1']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_2']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_3']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_4']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_5']
+                                                  .toString())));
+                                  setState(() {});
+                                },
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                      side: BorderSide(
+                                          color: Colors.grey[300], width: 1.5)),
+                                  child: Stack(
+                                    children: [
+                                      Container(
+                                        padding: EdgeInsets.all(10),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 200,
+                                                width: 200,
+                                                child: CachedNetworkImage(
+                                                    imageUrl: MyWidgets
+                                                            .postImageUrl +
+                                                        snap.data[index]
+                                                            ['posts_image_1'].toString(),
+                                                    fit: BoxFit.fitHeight,
+                                                    placeholder: (context,
+                                                            url) =>
+                                                        Center(
+                                                            child:
+                                                                CircularProgressIndicator()),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            Icon(Icons.image)),
+                                              ),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                "₹ ${snap.data[index]['posts_price'].toString()}",
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                              SizedBox(height: 5),
+                                              Text(snap.data[index]
+                                                      ['posts_title']
+                                                  .toString()),
+                                            ]),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            height: 30,
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Colors.white),
+                                            padding: EdgeInsets.all(5),
+                                            child: InkWell(
+                                              onTap: () {
+                                                updateFavourite(
+                                                        int.parse(snap
+                                                            .data[index]
+                                                                ['posts_id']
+                                                            .toString()),
+                                                        int.parse(snap
+                                                            .data[index]
+                                                                ['posts_img_id']
+                                                            .toString()))
+                                                    .whenComplete(() {
+                                                  setState(() {});
+                                                });
+                                              },
+                                              child: Icon(snap.data[index]
+                                                              ['favourites']
+                                                          .toString() ==
+                                                      "1"
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            });
+                      }
+                    } else if (snap.hasError) {
+                      return Center(child: Text("Try Again Later!"));
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -325,7 +454,7 @@ class _HomeState extends State<Home> {
           BottomNavigationBarItem(icon: Icon(Icons.home), title: Text("HOME")),
           BottomNavigationBarItem(icon: Icon(null), title: Text("SELL")),
           BottomNavigationBarItem(
-              icon: Icon(Icons.font_download), title: Text("MY ADS")),
+              icon: Icon(Icons.font_download), title: Text("MY ADS"))
           /*BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),
             title: Text("ACCOUNT"),
@@ -335,18 +464,18 @@ class _HomeState extends State<Home> {
           setState(() {
             _bottomIndex = value;
             switch (value) {
-              case 0:
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Home()));
-                ;
-                break;
+              // case 0:
+              //   Navigator.pushReplacement(
+              //       context, MaterialPageRoute(builder: (context) => Home()));
+              //   break;
+              //
               case 1:
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (context) => Home()));
                 break;
               case 2:
                 Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => MyAds()));
+                    context, MaterialPageRoute(builder: (context) => MyAds(0)));
                 break;
               /*case 3: Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (context) => UserProfile()));

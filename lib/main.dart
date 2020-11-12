@@ -38,7 +38,7 @@ class _MyHomePageState extends State<MyHomePage> {
       userCount = await db.getCount();
       if(userCount > 0){
         db.getUser().then((data) {
-          print(data[0]['user_id']);
+          print(data[0]['user_id'].toString());
         });
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Home()));
       }else{

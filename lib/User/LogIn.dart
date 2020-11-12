@@ -8,7 +8,6 @@ import 'package:meplo/Home.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
 import 'package:meplo/UI/DatabaseHelper.dart';
-import 'package:meplo/UI/Menifo.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 
 import 'SignUp.dart';
@@ -25,7 +24,6 @@ class _LogInState extends State<LogIn> {
   TextEditingController _userPass = TextEditingController();
   String url;
   bool _isLoading = false;
-  Menifo menifo = Menifo();
 
   void setToMyWidgets(String _userId, String _userName, String _userEmail,
       String _userMobile, String _userPassword) {
@@ -42,7 +40,7 @@ class _LogInState extends State<LogIn> {
     setState(() {
       _isLoading = true;
     });
-    url = menifo.getBseUrl() +
+    url = MyWidgets.api +
         "LoginUser?user_email=${_userEmail.text}&user_password=${_userPass
             .text}";
     print(url);

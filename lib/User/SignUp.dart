@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:email_validator/email_validator.dart';
-import 'package:meplo/UI/Menifo.dart';
+import 'package:meplo/UI/MyWidgets.dart';
 
 import 'LogIn.dart';
 
@@ -23,19 +23,17 @@ class _SignUpState extends State<SignUp> {
 
   bool _isLoading = false;
   String url;
-  Menifo menifo;
 
   @override
   void initState() {
     super.initState();
-    menifo = Menifo();
   }
 
   Future<void> registerUser() async {
     setState(() {
       _isLoading = true;
     });
-    url = menifo.getBseUrl() +
+    url = MyWidgets.api +
         "RegisterUser?user_name=${_userName.text}&user_email=${_userEmail.text}&user_mobile=${_userMob.text}&user_password=${_userPass.text}";
     print(url);
     var response = await http

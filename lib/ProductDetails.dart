@@ -1,36 +1,67 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:meplo/UI/Menifo.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'SellerProfile.dart';
+import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 
 class ProductDetails extends StatefulWidget {
-  String _postId;
-  String _title;
-  String _desc;
-  String _price;
-  String _date;
-  String _image1;
-  String _image2;
-  String _image3;
-  String _image4;
-  String _image5;
+  final String _sellerName;
+  final String _postId;
+  final String _title;
+  final String _desc;
+  final String _price;
+  final String _date;
+  final String _favourite;
+  final String _postImageId;
+  final String _image1;
+  final String _image2;
+  final String _image3;
+  final String _image4;
+  final String _image5;
 
-  ProductDetails(this._postId, this._title, this._desc, this._price, this._date, this._image1,
-      this._image2, this._image3, this._image4, this._image5);
+  ProductDetails(
+      this._sellerName,
+      this._postId,
+      this._title,
+      this._desc,
+      this._price,
+      this._date,
+      this._favourite,
+      this._postImageId,
+      this._image1,
+      this._image2,
+      this._image3,
+      this._image4,
+      this._image5);
 
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
 }
 
 class _ProductDetailsState extends State<ProductDetails> {
-  bool isFavorite = false;
   bool relatedAdsIsFavorite = false;
   int _relatedAdsIndex;
-  Menifo menifo = Menifo();
   CarouselController carouselController = CarouselController();
   List<String> images = [];
+
+  Future<void> updateFavourite() async {
+    String url = MyWidgets.api +
+        "FavouritePost?user_id=${int.parse(MyWidgets.userId.toString())}&posts_id=${int.parse(widget._postId.toString())}&posts_img_id=${int.parse(widget._postImageId.toString())}";
+    print(url);
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    setState(() {});
+    print(response.body.toString());
+    Fluttertoast.showToast(
+        msg: response.body.toString(),
+        backgroundColor: Colors.grey[600],
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        fontSize: 16.0);
+  }
 
   @override
   void initState() {
@@ -86,20 +117,21 @@ class _ProductDetailsState extends State<ProductDetails> {
           ),*/
           Container(
             height: 250,
-            child: ListView.builder(shrinkWrap: true,
+            child: ListView.builder(
+                shrinkWrap: true,
                 scrollDirection: Axis.horizontal,
-                itemCount: images.length, itemBuilder: (context, index) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                child: CachedNetworkImage(
-                    imageUrl: menifo.getImageUrl() + images[index],
-                    fit: BoxFit.fitHeight,
-                    placeholder: (context, url) => Center(
-                        child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) =>
-                        Icon(Icons.image)
-                ),
-              );
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    child: CachedNetworkImage(
+                        imageUrl: MyWidgets.postImageUrl + images[index],
+                        fit: BoxFit.fitHeight,
+                        placeholder: (context, url) =>
+                            Center(child: CircularProgressIndicator()),
+                        errorWidget: (context, url, error) =>
+                            Icon(Icons.image)),
+                  );
                 }),
           ),
           ListView(
@@ -111,17 +143,19 @@ class _ProductDetailsState extends State<ProductDetails> {
                 children: [
                   Expanded(
                       child: Text(
-                    "₹ " + widget._price.toString(),
+                    "₹ " + widget._price.toString() + "/-",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   )),
                   InkWell(
                       onTap: () {
-                        setState(() {
-                          isFavorite = !isFavorite;
+                        updateFavourite().whenComplete(() {
+                          setState(() {});
                         });
                       },
                       child: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        widget._favourite.toString() == "1"
+                            ? Icons.favorite
+                            : Icons.favorite_border,
                         size: 30,
                       ))
                 ],
@@ -160,8 +194,11 @@ class _ProductDetailsState extends State<ProductDetails> {
               SizedBox(height: 10),
               InkWell(
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => SellerProfile()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              SellerProfile(widget._sellerName)));
                 },
                 child: Row(
                   children: [
@@ -181,7 +218,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(MyWidgets.userName.toString(),
+                          Text(
+                            widget._sellerName.toString(),
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height: 3),
@@ -219,7 +257,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                 children: [
                   Expanded(
                     child: Text(
-                      "AD ID : "+widget._postId,
+                      "AD ID : " + widget._postId.toString(),
                       textAlign: TextAlign.left,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
