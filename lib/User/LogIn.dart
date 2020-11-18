@@ -25,11 +25,13 @@ class _LogInState extends State<LogIn> {
   String url;
   bool _isLoading = false;
 
-  void setToMyWidgets(String _userId, String _userName, String _userEmail,
+  void setToMyWidgets(String _userId, String _userName, String _userDetail, String _userImage, String _userEmail,
       String _userMobile, String _userPassword) {
     setState(() {
       MyWidgets.userId = _userId;
       MyWidgets.userName = _userName;
+      MyWidgets.userDetails = _userDetail;
+      MyWidgets.userImage = _userImage;
       MyWidgets.userEmail = _userEmail;
       MyWidgets.userMobile = _userMobile;
       MyWidgets.userPassword = _userPassword;
@@ -49,46 +51,57 @@ class _LogInState extends State<LogIn> {
 
     // print(jsonDecode(response.body).toString());
 
-    if (response.body.toString() == "Invalid Credintials!") {
+    if(response.statusCode == 200){
+      if (response.body.toString() == "Invalid Credintials!") {
+        setState(() {
+          _isLoading = false;
+        });
+        Fluttertoast.showToast(
+            msg: "Invalid Credintials!",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            backgroundColor: Colors.grey[600],
+            textColor: Colors.white,
+            fontSize: 16.0);
+      } else {
+        setToMyWidgets(
+            jsonDecode(response.body)[0]['user_id'].toString(),
+            jsonDecode(response.body)[0]['user_name'].toString(),
+            jsonDecode(response.body)[0]['user_description'].toString(),
+            jsonDecode(response.body)[0]['user_img'].toString(),
+            jsonDecode(response.body)[0]['user_email'].toString(),
+            jsonDecode(response.body)[0]['user_mobile'].toString(),
+            jsonDecode(response.body)[0]['user_password'].toString());
+        DatabaseHelper db = DatabaseHelper.instance;
+        db
+            .insertUser(
+            jsonDecode(response.body)[0]['user_id'].toString(),
+            jsonDecode(response.body)[0]['user_name'].toString(),
+            jsonDecode(response.body)[0]['user_description'].toString(),
+            jsonDecode(response.body)[0]['user_img'].toString(),
+            jsonDecode(response.body)[0]['user_email'].toString(),
+            jsonDecode(response.body)[0]['user_mobile'].toString(),
+            jsonDecode(response.body)[0]['user_password'].toString())
+            .then((value) {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => Home()));
+        });
+        Fluttertoast.showToast(
+            msg: "LogIn Successfully!",
+            backgroundColor: Colors.grey[600],
+            gravity: ToastGravity.BOTTOM,
+            textColor: Colors.white,
+            toastLength: Toast.LENGTH_SHORT,
+            fontSize:
+            16.0
+        );
+      }
+    }else{
       setState(() {
         _isLoading = false;
       });
-      Fluttertoast.showToast(
-          msg: "Invalid Credintials!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.grey[600],
-          textColor: Colors.white,
-          fontSize: 16.0);
-    } else {
-      setToMyWidgets(
-          jsonDecode(response.body)[0]['user_id'].toString(),
-          jsonDecode(response.body)[0]['user_name'].toString(),
-          jsonDecode(response.body)[0]['user_email'].toString(),
-          jsonDecode(response.body)[0]['user_mobile'].toString(),
-          jsonDecode(response.body)[0]['user_password'].toString());
-    DatabaseHelper db = DatabaseHelper.instance;
-    db
-        .insertUser(
-    jsonDecode(response.body)[0]['user_id'].toString(),
-    jsonDecode(response.body)[0]['user_name'].toString(),
-    jsonDecode(response.body)[0]['user_email'].toString(),
-    jsonDecode(response.body)[0]['user_mobile'].toString(),
-    jsonDecode(response.body)[0]['user_password'].toString())
-        .then((value) {
-    Navigator.pushReplacement(
-    context, MaterialPageRoute(builder: (context) => Home()));
-    });
-    Fluttertoast.showToast(
-    msg: "LogIn Successfully!",
-    backgroundColor: Colors.grey[600],
-    gravity: ToastGravity.BOTTOM,
-    textColor: Colors.white,
-    toastLength: Toast.LENGTH_SHORT,
-    fontSize:
-    16.0
-    );
-  }
+    }
+
   }
 
   @override

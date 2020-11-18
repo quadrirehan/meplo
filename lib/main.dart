@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:meplo/Home.dart';
+import 'package:meplo/User/UserProfile.dart';
+import 'package:meplo/User/UserSettings.dart';
 import 'UI/DatabaseHelper.dart';
 import 'User/LogIn.dart';
 
@@ -16,7 +18,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage() /*Home()*/,
+      home: MyHomePage(),
     );
   }
 }

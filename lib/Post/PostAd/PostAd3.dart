@@ -3,6 +3,7 @@ import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:meplo/MyAds.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 
@@ -134,20 +135,24 @@ class _PostAd3State extends State<PostAd3> {
       setState(() {
         _isPosting = false;
       });
-      print('Image Uploaded!');
+      print('Ad Posted Successfully');
       Fluttertoast.showToast(
-          msg: "Image Uploaded!",
+          msg: "Ad Posted Successfully",
           fontSize: 16.0,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.grey[600]);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds(0)));
     } else {
       setState(() {
         _isPosting = false;
       });
-      print('Image Not Uploaded!');
+      print('Error while posting Ad');
       Fluttertoast.showToast(
-          msg: "Image Not Uploaded!",
+          msg: "Error while posting Ad",
           fontSize: 16.0,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
@@ -168,7 +173,7 @@ class _PostAd3State extends State<PostAd3> {
                     children: [
                       CircularProgressIndicator(),
                       SizedBox(width: 25),
-                      Text("Posting Ad...")
+                      Text("Posting...")
                     ],
                   ),
                 )

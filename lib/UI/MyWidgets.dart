@@ -5,11 +5,14 @@ class MyWidgets {
 
   static String userId;
   static String userName;
+  static String userDetails;
+  static String userImage;
   static String userEmail;
   static String userMobile;
   static String userPassword;
+  static String userImageUrl = baseUrl+"Meplo/public/Profile/";
 
-  static String baseUrl = "http://192.168.5.110/";
+  static String baseUrl = "http://192.168.5.111/";
   static String api = baseUrl+"Meplo/api/";
   static String categoriesUrl = baseUrl+"Meplo/public/Categories/";
   static String postImageUrl = baseUrl+"Meplo/public/Images/";

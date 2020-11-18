@@ -7,7 +7,7 @@ import 'package:meplo/Home.dart';
 import 'package:meplo/ProductDetails.dart';
 import 'package:http/http.dart' as http;
 
-import 'PostAd/PostAd1.dart';
+import 'Post/PostAd/PostAd1.dart';
 import 'UI/MyWidgets.dart';
 
 class MyAds extends StatefulWidget {
@@ -109,18 +109,7 @@ class _MyAdsState extends State<MyAds> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ProductDetails(
-                                              snap.data[index]['user_name']
-                                                  .toString(),
                                               snap.data[index]['posts_id']
-                                                  .toString(),
-                                              snap.data[index]['posts_title']
-                                                  .toString(),
-                                              snap.data[index]
-                                                      ['posts_description']
-                                                  .toString(),
-                                              snap.data[index]['posts_price']
-                                                  .toString(),
-                                              snap.data[index]['posts_date']
                                                   .toString(),
                                               snap.data[index]['favourites']
                                                   .toString(),
@@ -221,18 +210,7 @@ class _MyAdsState extends State<MyAds> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ProductDetails(
-                                              snap.data[index]['user_name']
-                                                  .toString(),
                                               snap.data[index]['posts_id']
-                                                  .toString(),
-                                              snap.data[index]['posts_title']
-                                                  .toString(),
-                                              snap.data[index]
-                                                      ['posts_description']
-                                                  .toString(),
-                                              snap.data[index]['posts_price']
-                                                  .toString(),
-                                              snap.data[index]['posts_date']
                                                   .toString(),
                                               snap.data[index]['favourites']
                                                   .toString(),

@@ -6,11 +6,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:meplo/Location.dart';
 import 'package:meplo/MyAds.dart';
-import 'package:meplo/PostAd/PostAd1.dart';
 import 'package:meplo/UI/DatabaseHelper.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:meplo/User/UserProfile.dart';
 import 'package:meplo/User/UserSettings.dart';
+import 'Post/PostAd/PostAd1.dart';
 import 'ProductDetails.dart';
 import 'User/LogIn.dart';
 
@@ -59,7 +59,7 @@ class _HomeState extends State<Home> {
     return jsonDecode(response.body);
   }
 
-  Future<List> getFavPosts() async {
+  /*Future<List> getFavPosts() async {
     String url =
         MyWidgets.api + "GetfavPosts?user_id=${int.parse(MyWidgets.userId)}";
     print(url);
@@ -70,7 +70,7 @@ class _HomeState extends State<Home> {
     // return jsonDecode(response.body);
     print("Favourite Posts:");
     print(jsonDecode(response.body)[0]['posts_id']);
-  }
+  }*/
 
   Future<void> updateFavourite(int _postId, int _imageId) async {
     String url = MyWidgets.api +
@@ -88,11 +88,37 @@ class _HomeState extends State<Home> {
         fontSize: 16.0);
   }
 
-/*  @override
-  void initState() {
-    super.initState();
-    getFavPosts();
-  }*/
+  showAlertDialog(BuildContext context) {
+    Widget cancelButton = FlatButton(
+      child: Text("Cancel"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    Widget logoutButton = FlatButton(
+      child: Text("Logout"),
+      onPressed: () async {
+        DatabaseHelper db = DatabaseHelper.instance;
+        await db.deleteUser().whenComplete(() {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => LogIn()));
+        });
+      },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text("Logout"),
+      content: Text("You won't receive messages and notifications for your ads until you log in again. Are you sure you want to log out?"),
+      actions: [cancelButton, logoutButton],
+    );
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,14 +133,15 @@ class _HomeState extends State<Home> {
               child: Column(
                 children: [
                   Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.yellow[700],
-                      ),
-                      child: Icon(
-                        Icons.person,
-                        size: 90,
-                      )),
+                    height: 100,
+                      width: 100,
+                      child: CachedNetworkImage(
+                          imageUrl: MyWidgets.userImageUrl + MyWidgets.userImage,
+                          fit: BoxFit.fill,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) =>
+                              Icon(Icons.person, color: Colors.black, size: 100,))),
                   SizedBox(height: 10),
                   Text(MyWidgets.userName, style: TextStyle(fontSize: 20))
                 ],
@@ -151,11 +178,7 @@ class _HomeState extends State<Home> {
           ),
           ListTile(
             onTap: () async {
-              DatabaseHelper db = DatabaseHelper.instance;
-              await db.deleteUser().whenComplete(() {
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => LogIn()));
-              });
+              showAlertDialog(context);
             },
             title: Text("Log Out"),
           ),
@@ -305,19 +328,7 @@ class _HomeState extends State<Home> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => ProductDetails(
-                                              snap.data[index]['user_name']
-                                                  .toString(),
-                                              snap.data[index]['posts_id']
-                                                  .toString(),
-                                              snap.data[index]['posts_title']
-                                                  .toString(),
-                                              snap.data[index]
-                                                      ['posts_description']
-                                                  .toString(),
-                                              snap.data[index]['posts_price']
-                                                  .toString(),
-                                              snap.data[index]['posts_date']
-                                                  .toString(),
+                                              snap.data[index]['posts_id'].toString(),
                                               snap.data[index]['favourites']
                                                   .toString(),
                                               snap.data[index]['posts_img_id']

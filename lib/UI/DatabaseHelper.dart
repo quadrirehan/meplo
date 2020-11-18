@@ -30,13 +30,13 @@ class DatabaseHelper{
 
   Future<void> _onCreate(Database db, int version) {
     //TODO: CREATE TABLE QUERY
-    db.execute("CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, user_name TEXT, user_email TEXT, user_mobile TEXT, user_password TEXT)");
+    db.execute("CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, user_id TEXT, user_name TEXT, user_detail TEXT, user_image TEXT, user_email TEXT, user_mobile TEXT, user_password TEXT)");
   }
 
-  Future<int> insertUser(String _userId, String _userName, String _userEmail, String _userMobile, String _userPassword) async{
+  Future<int> insertUser(String _userId, String _userName, String _userDetail, String _userImage, String _userEmail, String _userMobile, String _userPassword) async{
     //TODO: RAW INSERT QUERY
     Database db = await instance.database;
-    return db.rawInsert("INSERT INTO user(user_id, user_name, user_email, user_mobile, user_password) VALUES('$_userId', '$_userName', '$_userEmail', '$_userMobile', '$_userPassword')");
+    return db.rawInsert("INSERT INTO user(user_id, user_name, user_detail, user_image, user_email, user_mobile, user_password) VALUES('$_userId', '$_userName', '$_userDetail', '$_userImage', '$_userEmail', '$_userMobile', '$_userPassword')");
   }
 
   Future<int> getCount() async {
