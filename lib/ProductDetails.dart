@@ -40,13 +40,18 @@ class _ProductDetailsState extends State<ProductDetails> {
   CarouselController carouselController = CarouselController();
   List<String> images = [];
 
+  String postUserId;
   var postData;
 
   Future<List> getSinglePost() async {
-    String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}";
+    String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}&user_id=${MyWidgets.userId}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    setState(() {
+      postUserId = jsonDecode(response.body)[0]['user_id'].toString();
+    });
+    print("Post User Id: "+postUserId);
     return jsonDecode(response.body);
   }
 
@@ -104,8 +109,10 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, actions: [
-        PopupMenuButton<String>(
+      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0,
+          actions: [
+            postUserId == MyWidgets.userId ?
+            PopupMenuButton<String>(
           onSelected: _selected,
           itemBuilder: (BuildContext context) {
             return {'edit'}.map((String choice) {
@@ -115,8 +122,8 @@ class _ProductDetailsState extends State<ProductDetails> {
               );
             }).toList();
           },
-        )
-      ]),
+        ) : Text("")
+      ], toolbarHeight: 40),
       body: FutureBuilder(
         future: postData,
         builder: (context, snap){
@@ -189,7 +196,7 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   });
                                 },
                                 child: Icon(
-                                  widget._favourite.toString() == "1"
+                                  snap.data[index]['favourites'].toString() == "1"
                                       ? Icons.favorite
                                       : Icons.favorite_border,
                                   size: 30,

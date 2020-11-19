@@ -97,13 +97,6 @@ class _PostAd3State extends State<PostAd3> {
     });
 
     print("Image File Length: " + _imageFile.length.toString());
-
-    /*for (int i = 0; i < images.length; i++) {
-      var path =
-      await FlutterAbsolutePath.getAbsolutePath(images[i].identifier);
-      print(path);
-      f.add(File(path));
-    }*/
   }
 
   Future uploadImages() async {
@@ -211,18 +204,6 @@ class _PostAd3State extends State<PostAd3> {
                     gravity: ToastGravity.BOTTOM,
                     backgroundColor: Colors.grey[600]);
               }
-              /*for (int i = 0; i < images.length; i++) {
-                */ /* var path = await FlutterAbsolutePath.getAbsolutePath(
-                    images[i].identifier);
-                print("path:: :: " + path);*/ /*
-
-                */
-              /*ByteData byteData = await images[i].getByteData();
-                List<int> imageData = byteData.buffer.asUint8List();
-                var base64 = base64Encode(imageData);
-                _base64.add(base64);*/ /*
-              }*/
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3()));
             },
             child: Text(
               "Post",

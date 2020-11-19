@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:meplo/UI/MyWidgets.dart';
 
+import 'PostAd/PostAd3.dart';
+
 class EditPost extends StatefulWidget {
   String _postId;
 
@@ -14,19 +16,41 @@ class EditPost extends StatefulWidget {
 }
 
 class _EditPostState extends State<EditPost> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   TextEditingController _adTitle = TextEditingController();
   TextEditingController _adDescription = TextEditingController();
   TextEditingController _adBrand = TextEditingController();
   TextEditingController _adPrice = TextEditingController();
 
+  String _postTitle;
+  String _postDesc;
+  String _postBrand;
+  String _postPrice;
+  String _postCategoryId;
+
   var postData;
+
+  bool enableBtn = false;
 
   Future<List> getSinglePost() async {
     String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+
+    _adTitle.text = jsonDecode(response.body)[0]['posts_title'].toString();
+    _adDescription.text = jsonDecode(response.body)[0]['posts_description'].toString();
+    _adBrand.text = jsonDecode(response.body)[0]['posts_brand'].toString();
+    _adPrice.text = jsonDecode(response.body)[0]['posts_price'].toString();
+
+    _postTitle = jsonDecode(response.body)[0]['posts_title'].toString();
+    _postDesc = jsonDecode(response.body)[0]['posts_description'].toString();
+    _postBrand = jsonDecode(response.body)[0]['posts_brand'].toString();
+    _postPrice = jsonDecode(response.body)[0]['posts_price'].toString();
+    _postCategoryId = jsonDecode(response.body)[0]['posts_category_id'].toString();
+
     return jsonDecode(response.body);
   }
 
@@ -34,10 +58,6 @@ class _EditPostState extends State<EditPost> {
   void initState() {
     super.initState();
     postData = getSinglePost();
-    /*_adTitle.text = postData[0]['posts_title'].toString();
-    _adDescription.text = postData[0]['posts_description'].toString();
-    _adBrand.text = postData[0]['posts_brand'].toString();
-    _adPrice.text = postData[0]['posts_price'].toString();*/
   }
 
   @override
@@ -65,7 +85,17 @@ class _EditPostState extends State<EditPost> {
                           TextFormField(
                             controller: _adTitle,
                             maxLength: 50,
-                            onChanged: (value){},
+                            onChanged: (value){
+                              if(_postTitle != value.toString()){
+                                setState(() {
+                                  enableBtn = true;
+                                });
+                              }else{
+                                setState(() {
+                                  enableBtn = false;
+                                });
+                              }
+                            },
                             validator: (value){
                               if(value.isEmpty){
                                 return "Enter Title";
@@ -84,6 +114,17 @@ class _EditPostState extends State<EditPost> {
                           TextFormField(
                             controller: _adDescription,
                             maxLength: 100,
+                            onChanged: (value){
+                              if(_postDesc != value.toString()){
+                                setState(() {
+                                  enableBtn = true;
+                                });
+                              }else{
+                                setState(() {
+                                  enableBtn = false;
+                                });
+                              }
+                            },
                             validator: (value){
                               if(value.isEmpty){
                                 return "Enter Description";
@@ -101,6 +142,17 @@ class _EditPostState extends State<EditPost> {
                           ),
                           TextFormField(
                             controller: _adBrand,
+                            onChanged: (value){
+                              if(_postBrand != value.toString()){
+                                setState(() {
+                                  enableBtn = true;
+                                });
+                              }else{
+                                setState(() {
+                                  enableBtn = false;
+                                });
+                              }
+                            },
                             validator: (value){
                               if(value.isEmpty){
                                 return "Enter Brand";
@@ -118,6 +170,17 @@ class _EditPostState extends State<EditPost> {
                           TextFormField(
                             controller: _adPrice,
                             keyboardType: TextInputType.number,
+                            onChanged: (value){
+                              if(_postPrice != value.toString()){
+                                setState(() {
+                                  enableBtn = true;
+                                });
+                              }else{
+                                setState(() {
+                                  enableBtn = false;
+                                });
+                              }
+                            },
                             validator: (value){
                               if(value.isEmpty){
                                 return "Enter price";
@@ -145,15 +208,15 @@ class _EditPostState extends State<EditPost> {
           margin: EdgeInsets.all(8),
           height: 50,
           child: RaisedButton(
-            onPressed: () {
+            onPressed: enableBtn ? () {
               if (_formKey.currentState.validate()) {
                 // _createPost();
                 print("Post Created");
-                // Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(widget.categoryId.toString(), _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(_postCategoryId, _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text)));
               } else {
                 print("ERRRRROOOORRR!!!!");
               }
-            },
+            } : null,
             child: Text(
               "Select Images",
               style: TextStyle(fontSize: 16),
