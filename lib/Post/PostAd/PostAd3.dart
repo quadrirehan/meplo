@@ -13,16 +13,16 @@ class PostAd3 extends StatefulWidget {
   String adTitle;
   String adDescription;
   String adPrice;
+  String postId;
 
   PostAd3(this.adCategoriId, this.adBrand, this.adTitle, this.adDescription,
-      this.adPrice);
+      this.adPrice, this.postId);
 
   @override
   _PostAd3State createState() => _PostAd3State();
 }
 
 class _PostAd3State extends State<PostAd3> {
-
   bool _isPosting = false;
   List<Asset> images = List<Asset>();
   List<File> _imageFile = [];
@@ -36,9 +36,9 @@ class _PostAd3State extends State<PostAd3> {
   Widget buildGridView() {
     return GridView.count(
       crossAxisCount: 3,
-      padding: EdgeInsets.all(5),
-      crossAxisSpacing: 5,
-      mainAxisSpacing: 5,
+      padding: EdgeInsets.all(10),
+      crossAxisSpacing: 10,
+      mainAxisSpacing: 10,
       children: List.generate(images.length, (index) {
         Asset asset = images[index];
         return AssetThumb(
@@ -62,7 +62,7 @@ class _PostAd3State extends State<PostAd3> {
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
           // actionBarTitle: "Example App",
-          actionBarColor: "#abcdef",
+          actionBarColor: "#0080ff",
           lightStatusBar: true,
           startInAllView: false,
           allViewTitle: "All Photos",
@@ -115,9 +115,9 @@ class _PostAd3State extends State<PostAd3> {
     request.fields['price'] = widget.adPrice;
 
     for (int i = 0; i < _imageFile.length; i++) {
-      request.files.add(
-          await http.MultipartFile.fromPath("image${i+1}", _imageFile[i].path));
-      print("image${i+1}");
+      request.files.add(await http.MultipartFile.fromPath(
+          "image${i + 1}", _imageFile[i].path));
+      print("image${i + 1}");
       print(_imageFile[i].path);
     }
 
@@ -138,7 +138,8 @@ class _PostAd3State extends State<PostAd3> {
       Navigator.pop(context);
       Navigator.pop(context);
       Navigator.pop(context);
-      Navigator.push(context, MaterialPageRoute(builder: (context) => MyAds(0)));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => MyAds(0)));
     } else {
       setState(() {
         _isPosting = false;
@@ -146,6 +147,70 @@ class _PostAd3State extends State<PostAd3> {
       print('Error while posting Ad');
       Fluttertoast.showToast(
           msg: "Error while posting Ad",
+          fontSize: 16.0,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.grey[600]);
+    }
+  }
+
+  Future updatePost() async {
+    setState(() {
+      _isPosting = true;
+    });
+    final uri = Uri.parse(MyWidgets.api + "UpdatePost");
+
+    var request = http.MultipartRequest('POST', uri);
+
+    request.fields['posts_id '] = MyWidgets.userId;
+    request.fields['user_id'] = MyWidgets.userId;
+    request.fields['category_id'] = widget.adCategoriId;
+    request.fields['brand'] = widget.adBrand;
+    request.fields['title'] = widget.adTitle;
+    request.fields['description'] = widget.adDescription;
+    request.fields['price'] = widget.adPrice;
+
+    if(_imageFile.length > 0){
+      for (int i = 0; i < _imageFile.length; i++) {
+        request.files.add(await http.MultipartFile.fromPath(
+            "image${i + 1}", _imageFile[i].path));
+        print("image${i + 1}");
+        print(_imageFile[i].path);
+      }
+    }
+
+    var response = await request.send();
+
+    print(response.reasonPhrase);
+    if (response.statusCode == 200) {
+      setState(() {
+        _isPosting = false;
+      });
+      print('Ad Updated Successfully');
+      Fluttertoast.showToast(
+          msg: "Ad Updated Successfully",
+          fontSize: 16.0,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          backgroundColor: Colors.grey[600]);
+      if (widget.postId == "0") {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MyAds(0)));
+      } else {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        setState(() {});
+      }
+    } else {
+      setState(() {
+        _isPosting = false;
+      });
+      print('Error while updating Ad');
+      Fluttertoast.showToast(
+          msg: "Error while updating Ad",
           fontSize: 16.0,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
@@ -165,57 +230,76 @@ class _PostAd3State extends State<PostAd3> {
                   title: Row(
                     children: [
                       CircularProgressIndicator(),
-                      SizedBox(width: 25),
-                      Text("Posting...")
+                      SizedBox(width: 20),
+                      Text(widget.postId.toString() == "0"
+                          ? "Posting..."
+                          : "Updating...")
                     ],
                   ),
                 )
               : Column(
                   children: <Widget>[
                     // Center(child: Text('Error: $_error')),
-                    RaisedButton(
-                      child: Text("Pick images"),
-                      onPressed: loadAssets,
-                    ),
                     Expanded(
                       child: _imageFile.length > 0
                           ? buildGridView()
                           : Center(child: Text("No Image Selected")),
-                    )
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      height: 70,
+                      width: double.infinity,
+                      child: RaisedButton(
+                        child:
+                            Text("Pick images", style: TextStyle(fontSize: 16)),
+                        onPressed: loadAssets,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        color: Colors.black,
+                        textColor: Colors.white,
+                      ),
+                    ),
                   ],
                 ),
         ],
       ),
-      bottomNavigationBar: !_isPosting ? BottomAppBar(
-        child: Container(
-          margin: EdgeInsets.all(8),
-          height: 50,
-          child: RaisedButton(
-            onPressed: () {
-              if (_imageFile.length != 0) {
-                uploadImages();
-                print(_imageFile.length.toString());
-              } else {
-                print("No Images Selected");
-                Fluttertoast.showToast(
-                    msg: "No Images Selected",
-                    fontSize: 16.0,
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    backgroundColor: Colors.grey[600]);
-              }
-            },
-            child: Text(
-              "Post",
-              style: TextStyle(fontSize: 16),
-            ),
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            color: Colors.black,
-            textColor: Colors.white,
-          ),
-        ),
-      ) : null,
+      bottomNavigationBar: !_isPosting
+          ? BottomAppBar(
+              child: Container(
+                margin: EdgeInsets.all(8),
+                height: 50,
+                child: RaisedButton(
+                  onPressed: () {
+                    if (_imageFile.length != 0) {
+                      if (widget.postId == "0") {
+                        uploadImages();
+                      } else {
+                        updatePost();
+                      }
+                      print(_imageFile.length.toString());
+                    } else {
+                      updatePost();
+                      print("No Images Selected");
+                      Fluttertoast.showToast(
+                          msg: "No Images Selected",
+                          fontSize: 16.0,
+                          toastLength: Toast.LENGTH_SHORT,
+                          gravity: ToastGravity.BOTTOM,
+                          backgroundColor: Colors.grey[600]);
+                    }
+                  },
+                  child: Text(
+                    widget.postId.toString() == "0" ? "Post" : "Update",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                  color: Colors.black,
+                  textColor: Colors.white,
+                ),
+              ),
+            )
+          : null,
     );
   }
 }

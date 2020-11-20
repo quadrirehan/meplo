@@ -132,7 +132,7 @@ class _PostAd2State extends State<PostAd2> {
               if(_formKey.currentState.validate()){
                 // _createPost();
                 print("Post Created");
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(widget.categoryId.toString(), _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(widget.categoryId.toString(), _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text, "0")));
               }else{
                 print("ERRRRROOOORRR!!!!");
               }

@@ -44,8 +44,8 @@ class _EditProfileState extends State<EditProfile> {
         cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
         materialOptions: MaterialOptions(
           // actionBarTitle: "Example App",
-          actionBarColor: "#0000ff",
-          lightStatusBar: false,
+          actionBarColor: "#0080ff",
+          lightStatusBar: true,
           startInAllView: false,
           allViewTitle: "All Photos",
           useDetailsView: false,

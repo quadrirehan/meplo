@@ -6,13 +6,14 @@ import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'ProductDetails.dart';
-import 'UI/MyWidgets.dart';
+import '../UI/MyWidgets.dart';
 
 class PostsByCategory extends StatefulWidget {
 
   String postCategoryId;
+  String postCategoryName;
 
-  PostsByCategory(this.postCategoryId);
+  PostsByCategory(this.postCategoryId, this.postCategoryName);
 
   @override
   _PostsByCategoryState createState() => _PostsByCategoryState();
@@ -47,12 +48,13 @@ class _PostsByCategoryState extends State<PostsByCategory> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text(widget.postCategoryName), centerTitle: true,),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: RefreshIndicator(
           onRefresh: () {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => PostsByCategory(widget.postCategoryId)));
+                context, MaterialPageRoute(builder: (context) => PostsByCategory(widget.postCategoryId, widget.postCategoryName)));
             return Future.value(false);
           },
           child: ListView(

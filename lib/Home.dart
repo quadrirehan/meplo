@@ -6,13 +6,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:meplo/Location.dart';
 import 'package:meplo/MyAds.dart';
-import 'package:meplo/PostsByCategory.dart';
+import 'package:meplo/Post/SearchPosts.dart';
+import 'file:///D:/Rehan/Android/flutter/meplo/lib/Post/PostsByCategory.dart';
 import 'package:meplo/UI/DatabaseHelper.dart';
 import 'package:meplo/UI/MyWidgets.dart';
 import 'package:meplo/User/UserProfile.dart';
 import 'package:meplo/User/UserSettings.dart';
 import 'Post/PostAd/PostAd1.dart';
-import 'ProductDetails.dart';
+import 'Post/ProductDetails.dart';
 import 'User/LogIn.dart';
 
 class Home extends StatefulWidget {
@@ -21,7 +22,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   TextEditingController _controller = TextEditingController();
   int _bottomIndex = 0;
 
@@ -55,8 +55,8 @@ class _HomeState extends State<Home> {
   Future<List> getCategories() async {
     String url = MyWidgets.api + "GetCategories";
     print(url);
-    var respose = await http.get(
-        Uri.encodeFull(url), headers: {'Accept': "application/json"});
+    var respose = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
     return jsonDecode(respose.body);
   }
 
@@ -70,8 +70,7 @@ class _HomeState extends State<Home> {
 
   Future<void> updateFavourite(int _postId, int _imageId) async {
     String url = MyWidgets.api +
-        "FavouritePost?user_id=${int.parse(MyWidgets.userId
-            .toString())}&posts_id=$_postId&posts_img_id=$_imageId";
+        "FavouritePost?user_id=${int.parse(MyWidgets.userId.toString())}&posts_id=$_postId&posts_img_id=$_imageId";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
@@ -123,72 +122,72 @@ class _HomeState extends State<Home> {
     return Scaffold(
       drawer: Drawer(
           child: ListView(
-            shrinkWrap: true,
-            children: <Widget>[
-              DrawerHeader(
-                // decoration: BoxDecoration(color: Colors.black),
-                child: Container(
-                  child: Column(
-                    children: [
-                      Container(
-                          height: 100,
-                          width: 100,
-                          child: CachedNetworkImage(
-                              imageUrl: MyWidgets.userImageUrl +
-                                  MyWidgets.userImage,
-                              fit: BoxFit.fill,
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) =>
-                                  Icon(Icons.person, color: Colors.black,
-                                    size: 100,))),
-                      SizedBox(height: 10),
-                      Text(MyWidgets.userName, style: TextStyle(fontSize: 20))
-                    ],
-                  ),
-                ),
+        shrinkWrap: true,
+        children: <Widget>[
+          DrawerHeader(
+            // decoration: BoxDecoration(color: Colors.black),
+            child: Container(
+              child: Column(
+                children: [
+                  Container(
+                      height: 100,
+                      width: 100,
+                      child: CachedNetworkImage(
+                          imageUrl:
+                              MyWidgets.userImageUrl + MyWidgets.userImage,
+                          fit: BoxFit.fill,
+                          placeholder: (context, url) =>
+                              Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => Icon(
+                                Icons.person,
+                                color: Colors.black,
+                                size: 100,
+                              ))),
+                  SizedBox(height: 10),
+                  Text(MyWidgets.userName, style: TextStyle(fontSize: 20))
+                ],
               ),
-              ListTile(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => UserProfile()));
-                },
-                title: Text("Profile"),
-              ),
-              ListTile(
-                onTap: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyAds(0)));
-                },
-                title: Text("My Ads"),
-              ),
-              ListTile(
-                onTap: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => MyAds(1)));
-                },
-                title: Text("Favourites"),
-              ),
-              ListTile(
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => UserSettings()));
-                },
-                title: Text("Settings"),
-              ),
-              ListTile(
-                onTap: () async {
-                  showAlertDialog(context);
-                },
-                title: Text("Log Out"),
-              ),
-              ListTile(
-                title: Text("Contact"),
-              ),
-            ],
-          )),
+            ),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserProfile()));
+            },
+            title: Text("Profile"),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => MyAds(0)));
+            },
+            title: Text("My Ads"),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => MyAds(1)));
+            },
+            title: Text("Favourites"),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => UserSettings()));
+            },
+            title: Text("Settings"),
+          ),
+          ListTile(
+            onTap: () async {
+              showAlertDialog(context);
+            },
+            title: Text("Log Out"),
+          ),
+          ListTile(
+            title: Text("Contact"),
+          ),
+        ],
+      )),
       body: WillPopScope(
         onWillPop: MyWidgets.onWillPop,
         child: Padding(
@@ -223,25 +222,34 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                SizedBox(height: 5),
+                SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.search, color: Colors.black),
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                borderSide: BorderSide()),
-                            hintText: "Machines, Engine, Plant, Parts...."),
+                      child:
+                          InkWell(
+                            onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPosts()));},
+                            child: Container(
+                        height: 50,
+                        padding: EdgeInsets.all(5),
+                        decoration:BoxDecoration(
+                              border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Row(
+                            children: [
+                              Icon(Icons.search, color: Colors.black),
+                              SizedBox(width: 10),
+                              Text("Machines, Engine, Plant, Parts....", style: TextStyle(color: Colors.grey[600], fontSize: 16), overflow: TextOverflow.ellipsis,),
+                            ],
+                        ),
                       ),
+                          ),
                     ),
                     SizedBox(width: 5),
                     InkWell(
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => LogIn()));
+                        /*Navigator.push(context,
+                            MaterialPageRoute(builder: (context) => LogIn()));*/
                       },
                       child: Icon(
                         Icons.notifications_none,
@@ -255,27 +263,36 @@ class _HomeState extends State<Home> {
                 Text("Browse Categories", textAlign: TextAlign.left),
                 SizedBox(height: 10),
                 FutureBuilder(
-                    future: getCategories(), builder: (context, snap) {
-                  if (snap.hasData) {
-                    return GridView.builder(
-                        padding: EdgeInsets.only(left: 25, right: 25),
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            childAspectRatio: 0.8,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 25,
-                            crossAxisCount: 3),
-                        itemCount: snap.data.length != 0 ? snap.data.length : 0,
-                        itemBuilder: (context, index) {
-                          return InkWell(
-                            onTap: () {
-                              Navigator.push(context, MaterialPageRoute(
-                                  builder: (context) => PostsByCategory(snap
-                                      .data[index]['posts_category_id'].toString())));
-                            },
-                            child: GridTile(
-                                child: Column(
+                    future: getCategories(),
+                    builder: (context, snap) {
+                      if (snap.hasData) {
+                        return GridView.builder(
+                            padding: EdgeInsets.only(left: 25, right: 25),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    childAspectRatio: 0.8,
+                                    mainAxisSpacing: 10,
+                                    crossAxisSpacing: 25,
+                                    crossAxisCount: 3),
+                            itemCount:
+                                snap.data.length != 0 ? snap.data.length : 0,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => PostsByCategory(
+                                              snap.data[index]
+                                                      ['posts_category_id']
+                                                  .toString(),
+                                              snap.data[index]['category_name']
+                                                  .toString())));
+                                },
+                                child: GridTile(
+                                    child: Column(
                                   children: [
                                     Container(
                                       height: 80,
@@ -288,19 +305,21 @@ class _HomeState extends State<Home> {
                                       ),
                                       child: Center(
                                           child: CachedNetworkImage(
-                                              imageUrl: MyWidgets
-                                                  .categoriesUrl + snap
-                                                  .data[index]['category_image'],
+                                              imageUrl:
+                                                  MyWidgets.categoriesUrl +
+                                                      snap.data[index]
+                                                          ['category_image'],
                                               fit: BoxFit.fitHeight,
                                               color: Colors.white,
                                               height: 80,
-                                              placeholder: (context, url) =>
-                                                  Center(
-                                                      child: CircularProgressIndicator()),
-                                              errorWidget: (context, url,
-                                                  error) =>
-                                                  Icon(
-                                                    Icons.image_outlined, size: 80,))),
+                                              placeholder: (context, url) => Center(
+                                                  child:
+                                                      CircularProgressIndicator()),
+                                              errorWidget:
+                                                  (context, url, error) => Icon(
+                                                        Icons.image_outlined,
+                                                        size: 80,
+                                                      ))),
                                     ),
                                     SizedBox(height: 5),
                                     Text(
@@ -312,14 +331,14 @@ class _HomeState extends State<Home> {
                                     ),
                                   ],
                                 )),
-                          );
-                        });
-                  } else if (snap.hasError) {
-                    return Center(child: Text("Try again later"));
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                }),
+                              );
+                            });
+                      } else if (snap.hasError) {
+                        return Center(child: Text("Try again later"));
+                      } else {
+                        return Center(child: CircularProgressIndicator());
+                      }
+                    }),
                 SizedBox(height: 10),
                 Container(
                   height: 80,
@@ -342,42 +361,35 @@ class _HomeState extends State<Home> {
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
                             gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                // /*crossAxisSpacing: 10*/
-                                childAspectRatio: 0.7),
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                    // /*crossAxisSpacing: 10*/
+                                    childAspectRatio: 0.7),
                             itemCount:
-                            snap.data.length != 0 ? snap.data.length : 0,
+                                snap.data.length != 0 ? snap.data.length : 0,
                             itemBuilder: (context, index) {
                               return InkWell(
                                 onTap: () {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProductDetails(
-                                                  snap.data[index]['posts_id']
-                                                      .toString(),
-                                                  snap.data[index]['favourites']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_img_id']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_image_1']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_image_2']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_image_3']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_image_4']
-                                                      .toString(),
-                                                  snap
-                                                      .data[index]['posts_image_5']
-                                                      .toString())));
+                                          builder: (context) => ProductDetails(
+                                              snap.data[index]['posts_id']
+                                                  .toString(),
+                                              snap.data[index]['favourites']
+                                                  .toString(),
+                                              snap.data[index]['posts_img_id']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_1']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_2']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_3']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_4']
+                                                  .toString(),
+                                              snap.data[index]['posts_image_5']
+                                                  .toString())));
                                   setState(() {});
                                 },
                                 child: Card(
@@ -391,39 +403,40 @@ class _HomeState extends State<Home> {
                                         padding: EdgeInsets.all(10),
                                         child: Column(
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                                CrossAxisAlignment.start,
                                             children: [
                                               SizedBox(
                                                 height: 200,
                                                 width: 200,
                                                 child: CachedNetworkImage(
                                                     imageUrl: MyWidgets
-                                                        .postImageUrl +
-                                                        snap.data[index]
-                                                        ['posts_image_1']
+                                                            .postImageUrl +
+                                                        snap.data[index][
+                                                                'posts_image_1']
                                                             .toString(),
                                                     fit: BoxFit.fitHeight,
                                                     placeholder: (context,
-                                                        url) =>
+                                                            url) =>
                                                         Center(
                                                             child:
-                                                            CircularProgressIndicator()),
-                                                    errorWidget:
-                                                        (context, url, error) =>
-                                                        Icon(Icons.image_outlined, size: 120,)),
+                                                                CircularProgressIndicator()),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        Icon(
+                                                          Icons.image_outlined,
+                                                          size: 120,
+                                                        )),
                                               ),
                                               SizedBox(height: 10),
                                               Text(
-                                                "₹ ${snap
-                                                    .data[index]['posts_price']
-                                                    .toString()}",
+                                                "₹ ${snap.data[index]['posts_price'].toString()}",
                                                 style: TextStyle(
                                                     fontWeight:
-                                                    FontWeight.bold),
+                                                        FontWeight.bold),
                                               ),
                                               SizedBox(height: 5),
                                               Text(snap.data[index]
-                                              ['posts_title']
+                                                      ['posts_title']
                                                   .toString()),
                                             ]),
                                       ),
@@ -440,22 +453,22 @@ class _HomeState extends State<Home> {
                                             child: InkWell(
                                               onTap: () {
                                                 updateFavourite(
-                                                    int.parse(snap
-                                                        .data[index]
-                                                    ['posts_id']
-                                                        .toString()),
-                                                    int.parse(snap
-                                                        .data[index]
-                                                    ['posts_img_id']
-                                                        .toString()))
+                                                        int.parse(snap
+                                                            .data[index]
+                                                                ['posts_id']
+                                                            .toString()),
+                                                        int.parse(snap
+                                                            .data[index]
+                                                                ['posts_img_id']
+                                                            .toString()))
                                                     .whenComplete(() {
                                                   setState(() {});
                                                 });
                                               },
                                               child: Icon(snap.data[index]
-                                              ['favourites']
-                                                  .toString() ==
-                                                  "1"
+                                                              ['favourites']
+                                                          .toString() ==
+                                                      "1"
                                                   ? Icons.favorite
                                                   : Icons.favorite_border),
                                             ),
@@ -513,11 +526,11 @@ class _HomeState extends State<Home> {
           setState(() {
             _bottomIndex = value;
             switch (value) {
-            // case 0:
-            //   Navigator.pushReplacement(
-            //       context, MaterialPageRoute(builder: (context) => Home()));
-            //   break;
-            //
+              // case 0:
+              //   Navigator.pushReplacement(
+              //       context, MaterialPageRoute(builder: (context) => Home()));
+              //   break;
+              //
               case 1:
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (context) => Home()));
@@ -526,7 +539,7 @@ class _HomeState extends State<Home> {
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (context) => MyAds(0)));
                 break;
-            /*case 3: Navigator.pushReplacement(
+              /*case 3: Navigator.pushReplacement(
                   context, MaterialPageRoute(builder: (context) => UserProfile()));
                 break;*/
             }

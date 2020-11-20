@@ -24,6 +24,7 @@ class _EditPostState extends State<EditPost> {
   TextEditingController _adBrand = TextEditingController();
   TextEditingController _adPrice = TextEditingController();
 
+  String _postId;
   String _postTitle;
   String _postDesc;
   String _postBrand;
@@ -35,7 +36,7 @@ class _EditPostState extends State<EditPost> {
   bool enableBtn = false;
 
   Future<List> getSinglePost() async {
-    String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}";
+    String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}&user_id=${MyWidgets.userId}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
@@ -45,6 +46,7 @@ class _EditPostState extends State<EditPost> {
     _adBrand.text = jsonDecode(response.body)[0]['posts_brand'].toString();
     _adPrice.text = jsonDecode(response.body)[0]['posts_price'].toString();
 
+    _postId = jsonDecode(response.body)[0]['posts_id '].toString();
     _postTitle = jsonDecode(response.body)[0]['posts_title'].toString();
     _postDesc = jsonDecode(response.body)[0]['posts_description'].toString();
     _postBrand = jsonDecode(response.body)[0]['posts_brand'].toString();
@@ -63,6 +65,7 @@ class _EditPostState extends State<EditPost> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Include some details")),
       body: Padding(
         padding: const EdgeInsets.only(left: 20.0, top: 20.0, right: 20.0),
         child: FutureBuilder(
@@ -210,9 +213,7 @@ class _EditPostState extends State<EditPost> {
           child: RaisedButton(
             onPressed: enableBtn ? () {
               if (_formKey.currentState.validate()) {
-                // _createPost();
-                print("Post Created");
-                Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(_postCategoryId, _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => PostAd3(_postCategoryId, _adBrand.text, _adTitle.text, _adDescription.text, _adPrice.text, _postId)));
               } else {
                 print("ERRRRROOOORRR!!!!");
               }

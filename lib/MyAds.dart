@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:meplo/Home.dart';
-import 'package:meplo/ProductDetails.dart';
+import 'file:///D:/Rehan/Android/flutter/meplo/lib/Post/ProductDetails.dart';
 import 'package:http/http.dart' as http;
 
 import 'Post/PostAd/PostAd1.dart';
@@ -54,207 +54,247 @@ class _MyAdsState extends State<MyAds> {
         body: WillPopScope(
           onWillPop: MyWidgets.onWillPop,
           child: TabBarView(children: [
-            FutureBuilder(
-                future: getPosts(),
-                builder: (context, snap) {
-                  if (snap.hasData) {
-                    if (snap.data.toString() == "[]") {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("You haven't listed anything yet",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            SizedBox(height: 20),
-                            Text("Let go of what you don't use anymore",
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 12)),
-                            SizedBox(height: 20),
-                            Container(
-                              height: 40,
-                              width: 250,
-                              child: RaisedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => PostAd1()));
-                                },
-                                child: Text("Post"),
-                                color: Colors.black,
-                                textColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    } else {
-                      return ListView.builder(
-                          padding:
-                              EdgeInsets.only(left: 10, top: 10, right: 10),
-                          shrinkWrap: true,
-                          itemCount:
-                              snap.data.length != 0 ? snap.data.length : 0,
-                          itemBuilder: (context, index) {
-                            return Card(
-                              margin: EdgeInsets.only(bottom: 10),
-                              shadowColor: Colors.lightBlueAccent,
-                              borderOnForeground: true,
-                              child: ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ProductDetails(
-                                              snap.data[index]['posts_id']
-                                                  .toString(),
-                                              snap.data[index]['favourites']
-                                                  .toString(),
-                                              snap.data[index]['posts_img_id']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_1']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_2']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_3']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_4']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_5']
-                                                  .toString())));
-                                },
-                                leading: SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: CachedNetworkImage(
-                                      imageUrl: MyWidgets.postImageUrl +
-                                          snap.data[index]['posts_image_1'],
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) =>
-                                          Icon(Icons.image)),
+            RefreshIndicator(
+              onRefresh: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => MyAds(0)));
+                return Future.value(false);
+              },
+              child: FutureBuilder(
+                  future: getPosts(),
+                  builder: (context, snap) {
+                    if (snap.hasData) {
+                      if (snap.data.toString() == "[]") {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("You haven't listed anything yet",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                              SizedBox(height: 20),
+                              Text("Let go of what you don't use anymore",
+                                  style: TextStyle(
+                                      color: Colors.grey[700], fontSize: 12)),
+                              SizedBox(height: 20),
+                              Container(
+                                height: 40,
+                                width: 250,
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => PostAd1()));
+                                  },
+                                  child: Text("Post"),
+                                  color: Colors.black,
+                                  textColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
                                 ),
-                                title: Text(
-                                    snap.data[index]['posts_title'].toString()),
-                                subtitle: Text("₹ " +
-                                    snap.data[index]['posts_price'].toString()),
-                              ),
-                            );
-                          });
-                    }
-                  } else if (snap.hasError) {
-                    return Center(child: Text("Try Again Later!"));
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                }),
-            FutureBuilder(
-                future: getFavPosts(),
-                builder: (context, snap) {
-                  if (snap.hasData) {
-                    if (snap.data.toString() == "[]") {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("You haven't liked anything yet",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 16)),
-                            SizedBox(height: 15),
-                            Text("Collect all the things",
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 12)),
-                            Text("you like in one place",
-                                style: TextStyle(
-                                    color: Colors.grey[700], fontSize: 12)),
-                            SizedBox(height: 18),
-                            Container(
-                              height: 40,
-                              width: 250,
-                              child: RaisedButton(
-                                onPressed: () {
-                                  Navigator.pushReplacement(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => Home()));
-                                },
-                                child: Text("Discover"),
-                                color: Colors.black,
-                                textColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8)),
-                              ),
-                            )
-                          ],
-                        ),
-                      );
-                    } else {
-                      return ListView.builder(
-                          padding:
-                              EdgeInsets.only(left: 10, top: 10, right: 10),
-                          shrinkWrap: true,
-                          itemCount:
-                              snap.data.length != 0 ? snap.data.length : 0,
-                          itemBuilder: (context, index) {
-                            return /*snap.data[index]['favourites'] == 1 ? */ Card(
-                              margin: EdgeInsets.only(bottom: 10),
-                              shadowColor: Colors.lightBlueAccent,
-                              borderOnForeground: true,
-                              child: ListTile(
-                                onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => ProductDetails(
-                                              snap.data[index]['posts_id']
-                                                  .toString(),
-                                              snap.data[index]['favourites']
-                                                  .toString(),
-                                              snap.data[index]['posts_img_id']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_1']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_2']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_3']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_4']
-                                                  .toString(),
-                                              snap.data[index]['posts_image_5']
-                                                  .toString())));
-                                  print(
-                                      snap.data[index]['posts_id'].toString());
-                                },
-                                leading: SizedBox(
-                                  height: 100,
-                                  width: 100,
-                                  child: CachedNetworkImage(
-                                      imageUrl: MyWidgets.postImageUrl +
-                                          snap.data[index]['posts_image_1'],
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) => Center(
-                                          child: CircularProgressIndicator()),
-                                      errorWidget: (context, url, error) =>
-                                          Icon(Icons.image)),
+                              )
+                            ],
+                          ),
+                        );
+                      } else {
+                        return ListView.builder(
+                            padding:
+                                EdgeInsets.only(left: 10, top: 10, right: 10),
+                            shrinkWrap: true,
+                            itemCount:
+                                snap.data.length != 0 ? snap.data.length : 0,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                margin: EdgeInsets.only(bottom: 10),
+                                shadowColor: Colors.lightBlueAccent,
+                                borderOnForeground: true,
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductDetails(
+                                                    snap.data[index]['posts_id']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['favourites']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_img_id']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_image_1']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_2']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_3']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_4']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_image_5']
+                                                        .toString())));
+                                  },
+                                  leading: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: CachedNetworkImage(
+                                        imageUrl: MyWidgets.postImageUrl +
+                                            snap.data[index]['posts_image_1'],
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => Center(
+                                            child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.image)),
+                                  ),
+                                  title: Text(snap.data[index]['posts_title']
+                                      .toString()),
+                                  subtitle: Text("₹ " +
+                                      snap.data[index]['posts_price']
+                                          .toString()),
                                 ),
-                                title: Text(
-                                    snap.data[index]['posts_title'].toString()),
-                                subtitle: Text("₹ " +
-                                    snap.data[index]['posts_price'].toString()),
-                              ),
-                            );
-                          });
+                              );
+                            });
+                      }
+                    } else if (snap.hasError) {
+                      return Center(child: Text("Try Again Later!"));
+                    } else {
+                      return Center(child: CircularProgressIndicator());
                     }
-                  } else if (snap.hasError) {
-                    return Center(child: Text("Try Again Later!"));
-                  } else {
-                    return Center(child: CircularProgressIndicator());
-                  }
-                }),
+                  }),
+            ),
+            RefreshIndicator(
+              onRefresh: () {
+                Navigator.pushReplacement(
+                    context, MaterialPageRoute(builder: (context) => MyAds(1)));
+                return Future.value(false);
+              },
+              child: FutureBuilder(
+                  future: getFavPosts(),
+                  builder: (context, snap) {
+                    if (snap.hasData) {
+                      if (snap.data.toString() == "[]") {
+                        return Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("You haven't liked anything yet",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
+                              SizedBox(height: 15),
+                              Text("Collect all the things",
+                                  style: TextStyle(
+                                      color: Colors.grey[700], fontSize: 12)),
+                              Text("you like in one place",
+                                  style: TextStyle(
+                                      color: Colors.grey[700], fontSize: 12)),
+                              SizedBox(height: 18),
+                              Container(
+                                height: 40,
+                                width: 250,
+                                child: RaisedButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => Home()));
+                                  },
+                                  child: Text("Discover"),
+                                  color: Colors.black,
+                                  textColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      } else {
+                        return ListView.builder(
+                            padding:
+                                EdgeInsets.only(left: 10, top: 10, right: 10),
+                            shrinkWrap: true,
+                            itemCount:
+                                snap.data.length != 0 ? snap.data.length : 0,
+                            itemBuilder: (context, index) {
+                              return /*snap.data[index]['favourites'] == 1 ? */ Card(
+                                margin: EdgeInsets.only(bottom: 10),
+                                shadowColor: Colors.lightBlueAccent,
+                                borderOnForeground: true,
+                                child: ListTile(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ProductDetails(
+                                                    snap.data[index]['posts_id']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['favourites']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_img_id']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_image_1']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_2']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_3']
+                                                        .toString(),
+                                                    snap
+                                                        .data[index]
+                                                            ['posts_image_4']
+                                                        .toString(),
+                                                    snap.data[index]
+                                                            ['posts_image_5']
+                                                        .toString())));
+                                    print(snap.data[index]['posts_id']
+                                        .toString());
+                                  },
+                                  leading: SizedBox(
+                                    height: 100,
+                                    width: 100,
+                                    child: CachedNetworkImage(
+                                        imageUrl: MyWidgets.postImageUrl +
+                                            snap.data[index]['posts_image_1'],
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => Center(
+                                            child: CircularProgressIndicator()),
+                                        errorWidget: (context, url, error) =>
+                                            Icon(Icons.image)),
+                                  ),
+                                  title: Text(snap.data[index]['posts_title']
+                                      .toString()),
+                                  subtitle: Text("₹ " +
+                                      snap.data[index]['posts_price']
+                                          .toString()),
+                                ),
+                              );
+                            });
+                      }
+                    } else if (snap.hasError) {
+                      return Center(child: Text("Try Again Later!"));
+                    } else {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                  }),
+            ),
           ]),
         ),
         floatingActionButton: FloatingActionButton(

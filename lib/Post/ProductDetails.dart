@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:meplo/Post/EditPost.dart';
 import 'package:meplo/UI/MyWidgets.dart';
-import 'SellerProfile.dart';
+import '../SellerProfile.dart';
 import 'package:http/http.dart' as http;
 import 'package:carousel_slider/carousel_slider.dart';
 
@@ -19,15 +19,8 @@ class ProductDetails extends StatefulWidget {
   final String _image4;
   final String _image5;
 
-  ProductDetails(
-      this._postId,
-      this._favourite,
-      this._postImageId,
-      this._image1,
-      this._image2,
-      this._image3,
-      this._image4,
-      this._image5);
+  ProductDetails(this._postId, this._favourite, this._postImageId, this._image1,
+      this._image2, this._image3, this._image4, this._image5);
 
   @override
   _ProductDetailsState createState() => _ProductDetailsState();
@@ -44,14 +37,14 @@ class _ProductDetailsState extends State<ProductDetails> {
   var postData;
 
   Future<List> getSinglePost() async {
-    String url = MyWidgets.api + "GetSinglePost?posts_id=${widget._postId}&user_id=${MyWidgets.userId}";
+    String url = MyWidgets.api +
+        "GetSinglePost?posts_id=${widget._postId}&user_id=${MyWidgets.userId}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
     setState(() {
       postUserId = jsonDecode(response.body)[0]['user_id'].toString();
     });
-    print("Post User Id: "+postUserId);
     return jsonDecode(response.body);
   }
 
@@ -92,13 +85,38 @@ class _ProductDetailsState extends State<ProductDetails> {
         fontSize: 16.0);
   }
 
+  Future<void> deletePost() async {
+    String url = MyWidgets.api + "DeletePost?posts_id=${widget._postId}";
+    print(url);
+    var response = await http
+        .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
+
+    print(response.body.toString());
+    Fluttertoast.showToast(
+        msg: response.body.toString(),
+        backgroundColor: Colors.grey[600],
+        gravity: ToastGravity.BOTTOM,
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_SHORT,
+        fontSize: 16.0);
+  }
+
   void _selected(String value) {
     switch (value) {
-      case 'edit': Navigator.push(context, MaterialPageRoute(builder: (context) => EditPost(widget._postId)));
+      case 'Edit':
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => EditPost(widget._postId)));
+        break;
+
+      case 'Delete':
+        deletePost().whenComplete(() {
+          Navigator.pop(context);
+          setState(() {});
+        });
         break;
     }
   }
-  
+
   @override
   void initState() {
     super.initState();
@@ -109,29 +127,29 @@ class _ProductDetailsState extends State<ProductDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0,
-          actions: [
-            postUserId == MyWidgets.userId ?
-            PopupMenuButton<String>(
-          onSelected: _selected,
-          itemBuilder: (BuildContext context) {
-            return {'edit'}.map((String choice) {
-              return PopupMenuItem<String>(
-                value: choice,
-                child: Text(choice),
-              );
-            }).toList();
-          },
-        ) : Text("")
-      ], toolbarHeight: 40),
+      appBar: AppBar(title: Text("Ad Details"), centerTitle: true, actions: [
+        postUserId == MyWidgets.userId
+            ? PopupMenuButton<String>(
+                onSelected: _selected,
+                itemBuilder: (BuildContext context) {
+                  return {'Edit', 'Delete'}.map((String choice) {
+                    return PopupMenuItem<String>(
+                      value: choice,
+                      child: Text(choice),
+                    );
+                  }).toList();
+                },
+              )
+            : Text("")
+      ]),
       body: FutureBuilder(
         future: postData,
-        builder: (context, snap){
-          if(snap.hasData){
+        builder: (context, snap) {
+          if (snap.hasData) {
             return ListView.builder(
               shrinkWrap: true,
               itemCount: snap.data.length != 0 ? snap.data.length : 0,
-              itemBuilder: (context, index){
+              itemBuilder: (context, index) {
                 return ListView(
                   physics: ScrollPhysics(),
                   shrinkWrap: true,
@@ -168,10 +186,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                             return Container(
                               width: MediaQuery.of(context).size.width,
                               child: CachedNetworkImage(
-                                  imageUrl: MyWidgets.postImageUrl + images[index],
+                                  imageUrl:
+                                      MyWidgets.postImageUrl + images[index],
                                   fit: BoxFit.fitHeight,
-                                  placeholder: (context, url) =>
-                                      Center(child: CircularProgressIndicator()),
+                                  placeholder: (context, url) => Center(
+                                      child: CircularProgressIndicator()),
                                   errorWidget: (context, url, error) =>
                                       Icon(Icons.image)),
                             );
@@ -186,9 +205,12 @@ class _ProductDetailsState extends State<ProductDetails> {
                           children: [
                             Expanded(
                                 child: Text(
-                                  "₹ " + snap.data[index]['posts_price'].toString() + "/-",
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                )),
+                              "₹ " +
+                                  snap.data[index]['posts_price'].toString() +
+                                  "/-",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            )),
                             InkWell(
                                 onTap: () {
                                   updateFavourite().whenComplete(() {
@@ -196,7 +218,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   });
                                 },
                                 child: Icon(
-                                  snap.data[index]['favourites'].toString() == "1"
+                                  snap.data[index]['favourites'].toString() ==
+                                          "1"
                                       ? Icons.favorite
                                       : Icons.favorite_border,
                                   size: 30,
@@ -240,8 +263,9 @@ class _ProductDetailsState extends State<ProductDetails> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) =>
-                                        SellerProfile(snap.data[index]['user_name'].toString())));
+                                    builder: (context) => SellerProfile(snap
+                                        .data[index]['user_name']
+                                        .toString())));
                           },
                           child: Row(
                             children: [
@@ -263,7 +287,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                                   children: [
                                     Text(
                                       snap.data[index]['user_name'].toString(),
-                                      style: TextStyle(fontWeight: FontWeight.bold),
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     SizedBox(height: 3),
                                     Text(
@@ -292,7 +317,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 10),
-                        Container(height: 100, child: Center(child: Text("MAP"))),
+                        Container(
+                            height: 100, child: Center(child: Text("MAP"))),
                         SizedBox(height: 10),
                         Divider(color: Colors.black),
                         SizedBox(height: 10),
@@ -300,7 +326,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                           children: [
                             Expanded(
                               child: Text(
-                                "AD ID : " + snap.data[index]['posts_id'].toString(),
+                                "AD ID : " +
+                                    snap.data[index]['posts_id'].toString(),
                                 textAlign: TextAlign.left,
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
@@ -330,8 +357,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                               return Card(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5),
-                                    side:
-                                    BorderSide(color: Colors.grey[300], width: 1.5)),
+                                    side: BorderSide(
+                                        color: Colors.grey[300], width: 1.5)),
                                 child: Container(
                                   width: 170,
                                   // margin: EdgeInsets.only(top: 10, right: 10, bottom: 10),
@@ -340,7 +367,8 @@ class _ProductDetailsState extends State<ProductDetails> {
                                       borderRadius: BorderRadius.circular(5),
                                       color: Colors.grey[100]),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Center(
                                         child: Image.asset(
@@ -357,14 +385,15 @@ class _ProductDetailsState extends State<ProductDetails> {
                                                 setState(() {
                                                   _relatedAdsIndex = index;
                                                   relatedAdsIsFavorite =
-                                                  !relatedAdsIsFavorite;
+                                                      !relatedAdsIsFavorite;
                                                   print(index.toString());
                                                 });
                                               },
-                                              child: Icon(index == _relatedAdsIndex &&
-                                                  relatedAdsIsFavorite
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border)),
+                                              child: Icon(
+                                                  index == _relatedAdsIndex &&
+                                                          relatedAdsIsFavorite
+                                                      ? Icons.favorite
+                                                      : Icons.favorite_border)),
                                         ],
                                       ),
                                       SizedBox(height: 5),
@@ -392,7 +421,11 @@ class _ProductDetailsState extends State<ProductDetails> {
                 );
               },
             );
-          }else if(snap.hasError){return Center(child: Text("Try again later"));}else{return Center(child: CircularProgressIndicator());}
+          } else if (snap.hasError) {
+            return Center(child: Text("Try again later"));
+          } else {
+            return Center(child: CircularProgressIndicator());
+          }
         },
       ),
       bottomNavigationBar: BottomAppBar(
