@@ -22,7 +22,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  TextEditingController _controller = TextEditingController();
   int _bottomIndex = 0;
 
   List<Color> categoriesColour = [
@@ -32,24 +31,6 @@ class _HomeState extends State<Home> {
     Colors.green[800],
     Colors.deepOrange,
     Colors.purple[900],
-  ];
-
-  List<String> categoriesImages = [
-    "assets/categories/Meplo-G01.png",
-    "assets/categories/Meplo-G02.png",
-    "assets/categories/Meplo-G03.png",
-    "assets/categories/Meplo-G04.png",
-    "assets/categories/Meplo-G05.png",
-    "assets/categories/Meplo-G06.png",
-  ];
-
-  List<String> categories = [
-    "Plants",
-    "Machines",
-    "Parts",
-    "Operators/Mechanic",
-    "Engines",
-    "New Dealers"
   ];
 
   Future<List> getCategories() async {
@@ -115,6 +96,12 @@ class _HomeState extends State<Home> {
         builder: (BuildContext context) {
           return alert;
         });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    print(MyWidgets.userId);
   }
 
   @override
@@ -226,24 +213,33 @@ class _HomeState extends State<Home> {
                 Row(
                   children: [
                     Expanded(
-                      child:
-                          InkWell(
-                            onTap: (){Navigator.push(context, MaterialPageRoute(builder: (context) => SearchPosts()));},
-                            child: Container(
-                        height: 50,
-                        padding: EdgeInsets.all(5),
-                        decoration:BoxDecoration(
-                              border: Border.all(color: Colors.black), borderRadius: BorderRadius.circular(10)
-                        ),
-                        child: Row(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SearchPosts()));
+                        },
+                        child: Container(
+                          height: 50,
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              border: Border.all(color: Colors.black),
+                              borderRadius: BorderRadius.circular(10)),
+                          child: Row(
                             children: [
                               Icon(Icons.search, color: Colors.black),
                               SizedBox(width: 10),
-                              Text("Machines, Engine, Plant, Parts....", style: TextStyle(color: Colors.grey[600], fontSize: 16), overflow: TextOverflow.ellipsis,),
+                              Text(
+                                "Machines, Engine, Plant, Parts....",
+                                style: TextStyle(
+                                    color: Colors.grey[600], fontSize: 16),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ],
+                          ),
                         ),
                       ),
-                          ),
                     ),
                     SizedBox(width: 5),
                     InkWell(
@@ -289,7 +285,10 @@ class _HomeState extends State<Home> {
                                                       ['posts_category_id']
                                                   .toString(),
                                               snap.data[index]['category_name']
-                                                  .toString())));
+                                                  .toString()))).whenComplete(
+                                      () {
+                                    setState(() {});
+                                  });
                                 },
                                 child: GridTile(
                                     child: Column(
@@ -376,8 +375,6 @@ class _HomeState extends State<Home> {
                                           builder: (context) => ProductDetails(
                                               snap.data[index]['posts_id']
                                                   .toString(),
-                                              snap.data[index]['favourites']
-                                                  .toString(),
                                               snap.data[index]['posts_img_id']
                                                   .toString(),
                                               snap.data[index]['posts_image_1']
@@ -389,8 +386,8 @@ class _HomeState extends State<Home> {
                                               snap.data[index]['posts_image_4']
                                                   .toString(),
                                               snap.data[index]['posts_image_5']
-                                                  .toString())));
-                                  setState(() {});
+                                                  .toString()))).whenComplete(
+                                      () => setState(() {}));
                                 },
                                 child: Card(
                                   shape: RoundedRectangleBorder(
@@ -532,8 +529,8 @@ class _HomeState extends State<Home> {
               //   break;
               //
               case 1:
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (context) => Home()));
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => PostAd1()));
                 break;
               case 2:
                 Navigator.pushReplacement(

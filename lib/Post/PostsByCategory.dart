@@ -4,12 +4,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:meplo/UI/MyWidgets.dart';
 
 import 'ProductDetails.dart';
-import '../UI/MyWidgets.dart';
 
 class PostsByCategory extends StatefulWidget {
-
   String postCategoryId;
   String postCategoryName;
 
@@ -20,9 +19,9 @@ class PostsByCategory extends StatefulWidget {
 }
 
 class _PostsByCategoryState extends State<PostsByCategory> {
-
   Future<List> postCategory() async {
-    String url = MyWidgets.api + "PostCategory?user_id=${MyWidgets.userId}&category_id=${widget.postCategoryId}";
+    String url = MyWidgets.api +
+        "PostCategory?user_id=${MyWidgets.userId}&category_id=${widget.postCategoryId}";
     print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
@@ -46,15 +45,27 @@ class _PostsByCategoryState extends State<PostsByCategory> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    print(MyWidgets.userId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.postCategoryName), centerTitle: true,),
+      appBar: AppBar(
+        title: Text(widget.postCategoryName),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: RefreshIndicator(
           onRefresh: () {
             Navigator.pushReplacement(
-                context, MaterialPageRoute(builder: (context) => PostsByCategory(widget.postCategoryId, widget.postCategoryName)));
+                context,
+                MaterialPageRoute(
+                    builder: (context) => PostsByCategory(
+                        widget.postCategoryId, widget.postCategoryName)));
             return Future.value(false);
           },
           child: ListView(
@@ -65,18 +76,21 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                 builder: (context, snap) {
                   if (snap.hasData) {
                     if (snap.data.toString() == "[]") {
-                      return Container(height: MediaQuery.of(context).size.height, child: Center(child: Text("No Ads Found for this category")));
+                      return Container(
+                          height: MediaQuery.of(context).size.height,
+                          child: Center(
+                              child: Text("No Ads Found for this category")));
                     } else {
                       return GridView.builder(
                           physics: NeverScrollableScrollPhysics(),
                           shrinkWrap: true,
                           gridDelegate:
-                          SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              // /*crossAxisSpacing: 10*/
-                              childAspectRatio: 0.7),
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  // /*crossAxisSpacing: 10*/
+                                  childAspectRatio: 0.7),
                           itemCount:
-                          snap.data.length != 0 ? snap.data.length : 0,
+                              snap.data.length != 0 ? snap.data.length : 0,
                           itemBuilder: (context, index) {
                             return InkWell(
                               onTap: () {
@@ -84,8 +98,7 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) => ProductDetails(
-                                            snap.data[index]['posts_id'].toString(),
-                                            snap.data[index]['favourites']
+                                            snap.data[index]['posts_id']
                                                 .toString(),
                                             snap.data[index]['posts_img_id']
                                                 .toString(),
@@ -98,8 +111,9 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                                             snap.data[index]['posts_image_4']
                                                 .toString(),
                                             snap.data[index]['posts_image_5']
-                                                .toString())));
-                                setState(() {});
+                                                .toString()))).whenComplete(() {
+                                  setState(() {});
+                                });
                               },
                               child: Card(
                                 shape: RoundedRectangleBorder(
@@ -112,36 +126,37 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                                       padding: EdgeInsets.all(10),
                                       child: Column(
                                           crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                              CrossAxisAlignment.start,
                                           children: [
                                             SizedBox(
                                               height: 200,
                                               width: 200,
                                               child: CachedNetworkImage(
                                                   imageUrl: MyWidgets
-                                                      .postImageUrl +
+                                                          .postImageUrl +
                                                       snap.data[index]
-                                                      ['posts_image_1'].toString(),
+                                                              ['posts_image_1']
+                                                          .toString(),
                                                   fit: BoxFit.fitHeight,
-                                                  placeholder: (context,
-                                                      url) =>
+                                                  placeholder: (context, url) =>
                                                       Center(
                                                           child:
-                                                          CircularProgressIndicator()),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                      Icon(Icons.image_outlined, size: 120,)),
+                                                              CircularProgressIndicator()),
+                                                  errorWidget: (context, url,
+                                                          error) =>
+                                                      Icon(
+                                                        Icons.image_outlined,
+                                                        size: 120,
+                                                      )),
                                             ),
                                             SizedBox(height: 10),
                                             Text(
                                               "₹ ${snap.data[index]['posts_price'].toString()}",
                                               style: TextStyle(
-                                                  fontWeight:
-                                                  FontWeight.bold),
+                                                  fontWeight: FontWeight.bold),
                                             ),
                                             SizedBox(height: 5),
-                                            Text(snap.data[index]
-                                            ['posts_title']
+                                            Text(snap.data[index]['posts_title']
                                                 .toString()),
                                           ]),
                                     ),
@@ -158,22 +173,20 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                                           child: InkWell(
                                             onTap: () {
                                               updateFavourite(
-                                                  int.parse(snap
-                                                      .data[index]
-                                                  ['posts_id']
-                                                      .toString()),
-                                                  int.parse(snap
-                                                      .data[index]
-                                                  ['posts_img_id']
-                                                      .toString()))
+                                                      int.parse(snap.data[index]
+                                                              ['posts_id']
+                                                          .toString()),
+                                                      int.parse(snap.data[index]
+                                                              ['posts_img_id']
+                                                          .toString()))
                                                   .whenComplete(() {
                                                 setState(() {});
                                               });
                                             },
                                             child: Icon(snap.data[index]
-                                            ['favourites']
-                                                .toString() ==
-                                                "1"
+                                                            ['favourites']
+                                                        .toString() ==
+                                                    "1"
                                                 ? Icons.favorite
                                                 : Icons.favorite_border),
                                           ),
@@ -187,9 +200,9 @@ class _PostsByCategoryState extends State<PostsByCategory> {
                           });
                     }
                   } else if (snap.hasError) {
-                    return Container(height: MediaQuery.of(context).size.height, child: Center(child: Text("Try Again Later!")));
+                    return Center(child: Text("Try Again Later!"));
                   } else {
-                    return Container(height: MediaQuery.of(context).size.height, child: Center(child: CircularProgressIndicator()));
+                    return Center(child: CircularProgressIndicator());
                   }
                 },
               ),

@@ -120,9 +120,6 @@ class _MyAdsState extends State<MyAds> {
                                                     snap.data[index]['posts_id']
                                                         .toString(),
                                                     snap.data[index]
-                                                            ['favourites']
-                                                        .toString(),
-                                                    snap.data[index]
                                                             ['posts_img_id']
                                                         .toString(),
                                                     snap.data[index]
@@ -239,9 +236,6 @@ class _MyAdsState extends State<MyAds> {
                                             builder: (context) =>
                                                 ProductDetails(
                                                     snap.data[index]['posts_id']
-                                                        .toString(),
-                                                    snap.data[index]
-                                                            ['favourites']
                                                         .toString(),
                                                     snap.data[index]
                                                             ['posts_img_id']

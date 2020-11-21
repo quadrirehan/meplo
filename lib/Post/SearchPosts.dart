@@ -21,7 +21,8 @@ class _SearchPostsState extends State<SearchPosts> {
   TextEditingController _searchText = TextEditingController();
 
   Future<List> searchPosts() async {
-    String url = MyWidgets.api + "SearchPosts?name=$_keyword";
+    String url = MyWidgets.api + "SearchPosts?user_id=${MyWidgets.userId}&name=$_keyword";
+    print(url);
     var response = await http
         .get(Uri.encodeFull(url), headers: {'Accept': "application/json"});
     return jsonDecode(response.body);
@@ -103,8 +104,6 @@ class _SearchPostsState extends State<SearchPosts> {
                                     builder: (context) =>
                                         ProductDetails(
                                             snap.data[index]['posts_id']
-                                                .toString(),
-                                            snap.data[index]['favourites']
                                                 .toString(),
                                             snap
                                                 .data[index]['posts_img_id']

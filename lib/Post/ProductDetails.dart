@@ -11,7 +11,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 class ProductDetails extends StatefulWidget {
   final String _postId;
-  final String _favourite;
   final String _postImageId;
   final String _image1;
   final String _image2;
@@ -19,7 +18,7 @@ class ProductDetails extends StatefulWidget {
   final String _image4;
   final String _image5;
 
-  ProductDetails(this._postId, this._favourite, this._postImageId, this._image1,
+  ProductDetails(this._postId, this._postImageId, this._image1,
       this._image2, this._image3, this._image4, this._image5);
 
   @override
